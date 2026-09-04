@@ -42,7 +42,7 @@ Auth.js ユーザー1人につき1行。初回サインイン時に自動作成�
 |---|---|---|
 | id | uuid PK | |
 | owner_id | uuid | FK → next_auth.users(id) ON DELETE CASCADE。セッションの user.id と同一 |
-| title | text | 既定 ''。**任意**。空なら本文1行目を見出しに使う |
+| title | text | 既定 ''。**任意**。空ならカードに見出しを出さず本文だけ表示する |
 | body | text | 既定 ''。プロンプト本文。改行は LF に正規化して保存 |
 | tags | text[] | 既定 '{}'。CHECK cardinality(tags) <= 20。GIN インデックスあり |
 | is_pinned | boolean | 既定 false。通常ビューでのみ意味を持つ |

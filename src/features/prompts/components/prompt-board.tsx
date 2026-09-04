@@ -59,7 +59,9 @@ export function PromptBoard({ prompts, view }: { prompts: Prompt[]; view: Prompt
       ) : (
         // CSS カラムによるマソンリー。列方向（上→下→次の列）に流れる点は Keep と異なるが、
         // JS ライブラリなしで高さのばらつきを吸収できる。
-        // カード側の break-inside-avoid / inline-block w-full が無いと列をまたいで割れる。
+        // カードは必ずブロックレベルにすること。inline-block にすると Chrome が
+        // カラム間で改ページせず、全カードが1列目に積み上がる（実測で確認済み）。
+        // カード自体が列をまたいで割れないよう break-inside-avoid も必要。
         <div className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
           {visible.map((prompt) => (
             <PromptCard key={prompt.id} prompt={prompt} view={view} />

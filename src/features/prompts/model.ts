@@ -24,13 +24,6 @@ export function viewOf(prompt: Prompt): PromptView {
   return "active";
 }
 
-/** タイトル未設定なら本文の1行目を見出しとして使う。 */
-export function displayTitle(prompt: Prompt): string {
-  if (prompt.title) return prompt.title;
-  const firstLine = prompt.body.split("\n").find((line) => line.trim().length > 0);
-  return firstLine?.trim().slice(0, 60) ?? "（無題）";
-}
-
 export type TagCount = { tag: string; count: number };
 
 /**

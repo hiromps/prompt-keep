@@ -14,7 +14,7 @@ CREATE TABLE public.prompts (
     owner_id uuid NOT NULL
         REFERENCES next_auth.users (id) ON DELETE CASCADE,
     -- タイトルは任意。Google Keep 同様、本文だけで保存できる
-    -- （空のときは本文の1行目を見出しとして表示する）
+    -- （空のときはカードに見出しを出さず、本文だけを表示する）
     title text NOT NULL DEFAULT '',
     -- プロンプト本文。そのままコピーして AI に貼り付ける想定
     body text NOT NULL DEFAULT '',

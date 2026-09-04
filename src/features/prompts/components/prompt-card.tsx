@@ -12,7 +12,7 @@ import {
 import { CopyButton } from "@/features/prompts/components/copy-button";
 import { TagsInput } from "@/features/prompts/components/tags-input";
 import { FieldError } from "@/components/form-feedback";
-import { displayTitle, type Prompt, type PromptView } from "@/features/prompts/model";
+import type { Prompt, PromptView } from "@/features/prompts/model";
 import type { ActionError, ActionResult } from "@/lib/errors";
 
 type PromptAction = (
@@ -61,7 +61,7 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
 
   if (editing) {
     return (
-      <article className="mb-4 inline-block w-full break-inside-avoid rounded-lg border border-[var(--accent)] bg-[var(--card)] p-3 shadow-sm">
+      <article className="mb-4 break-inside-avoid rounded-lg border border-[var(--accent)] bg-[var(--card)] p-3 shadow-sm">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -117,9 +117,15 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
   }
 
   return (
-    <article className="group mb-4 inline-block w-full break-inside-avoid rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 transition-shadow hover:shadow-md">
+    <article className="group mb-4 break-inside-avoid rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-sm font-medium break-words">{displayTitle(prompt)}</h3>
+        {/* タイトルは任意。無いときは見出しを出さず本文だけ見せる（Keep と同じ）。
+            本文1行目を見出しに流用すると、直下の本文と重複して読みにくい。 */}
+        {prompt.title ? (
+          <h3 className="text-sm font-medium break-words">{prompt.title}</h3>
+        ) : (
+          <span aria-hidden="true" />
+        )}
         {view === "active" ? (
           <button
             type="button"
