@@ -13,7 +13,8 @@ export async function SiteHeader() {
       <div className="flex items-center gap-3 px-3 py-2">
         {/* ハンバーガーと検索はプロンプト一覧でのみ出る（内部で pathname を見て自分で消える） */}
         <SidebarToggle />
-        <Link href="/" className="shrink-0 px-1 font-semibold whitespace-nowrap">
+        {/* ログイン中のトップはプロンプト一覧。LP に戻す意味は無い */}
+        <Link href={user ? "/prompts" : "/"} className="shrink-0 px-1 font-semibold whitespace-nowrap">
           prompt-keep
         </Link>
         <div className="hidden min-w-0 flex-1 md:flex md:max-w-2xl">
