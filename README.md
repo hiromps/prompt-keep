@@ -1,9 +1,33 @@
 # prompt-keep
 
 よく使う AI プロンプトを Google Keep 風のカードで貯めて、タグと検索ですぐ見つけ、
-ワンクリックでコピーするための個人用プロンプト管理。
+ワンクリックでコピーするためのプロンプト管理。自分のサーバー / Vercel に立てて使う。
+
+**MIT ライセンスです。** フォーク・改変・商用利用のいずれも自由に行えます
+（[LICENSE](LICENSE) 参照）。
+
+> **A self-hosted prompt manager with a Google Keep–style UI.**
+> Save the AI prompts you reuse as cards, find them by tag or full-text search,
+> and copy one to the clipboard in a single click. Pin, archive, and a restorable
+> trash are included. Next.js App Router + Auth.js (Google OAuth) + Supabase
+> Postgres. The UI and docs are in Japanese. MIT licensed — fork it freely.
 
 [hiromps/nextjs-mvp-starter](https://github.com/hiromps/nextjs-mvp-starter) を土台にしている。
+
+## できること
+
+- プロンプトをカードとして保存（タイトルは任意。本文だけでも保存できる）
+- タグ付けと、サイドバーのタグからの絞り込み
+- タイトル・本文・タグを横断する検索（全角/半角の表記ゆれを吸収）
+- 本文のワンクリックコピー
+- ピン留め / アーカイブ / ゴミ箱（論理削除・復元・完全削除）
+- カードのタイトルや本文をクリックすると中央のモーダルで編集
+
+**できないこと**: 共有・チーム利用・権限分け、プロンプトの変数展開、AI API の呼び出し。
+1人1アカウントで自分のプロンプトだけを見る設計です
+（[docs/mvp-scope.md](docs/mvp-scope.md) にスコープ外の一覧と理由があります）。
+
+## 技術構成
 
 - **Next.js App Router**（TypeScript strict / Tailwind CSS v4 / pnpm）
 - **認証: Auth.js（NextAuth v5）+ Google OAuth**（Supabase Auth は不使用）
@@ -140,3 +164,16 @@ supabase/        config.toml と migrations
 docs/            プロダクト・技術文書（decisions/ = ADR）
 project.config.ts 構成の単一情報源（Optional modules のフラグ管理）
 ```
+
+## ライセンス
+
+[MIT](LICENSE)。フォークして自分用に立てるのも、改変して再配布するのも自由です。
+利用にあたって連絡や表示義務はありません（MIT の条件に従ってください）。
+
+## 貢献
+
+個人プロジェクトのため、機能追加の Issue / PR に必ず対応できるとは限りません。
+バグ報告は歓迎します。フォークして自分の使い方に合わせて改造するのが一番早いと思います。
+
+作業を引き継ぐときは、まず [CLAUDE.md](CLAUDE.md)（AI・開発者向けの作業ルール）と
+[docs/decisions/](docs/decisions/)（なぜそうなっているかの記録）を読んでください。
