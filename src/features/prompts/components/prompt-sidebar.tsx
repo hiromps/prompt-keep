@@ -14,7 +14,15 @@ const NAV = [
   { view: "trashed" as const, href: "/prompts/trash", label: "ゴミ箱", Icon: Trash2 },
 ];
 
-type Props = { view: PromptView; tags: TagCount[]; activeTag?: string };
+type Props = {
+  /** 現在のビュー。プロンプト画面以外（プロフィールなど）では無し */
+  view?: PromptView;
+  tags?: TagCount[];
+  activeTag?: string;
+};
+
+/** 既定値を埋めた後の props（内側の2コンポーネントは tags を必須で受ける） */
+type ResolvedProps = Props & { tags: TagCount[] };
 
 /**
  * サイドバー。画面幅で見せ方が変わる。
@@ -24,8 +32,12 @@ type Props = { view: PromptView; tags: TagCount[]; activeTag?: string };
  * タグは「プロンプト」の下の階層として扱う（タグが付くのは通常ビューの行だけで、
  * クリック先も /prompts?tag=… になるため）。レールが畳まれているときも到達できるよう、
  * プロンプトのアイコンにホバー / フォーカスするとタグ一覧がせり出す。
+ *
+ * プロンプト画面以外（プロフィール / 管理）でも同じサイドバーを出す（ProtectedShell）。
+ * そこではタグ一覧を持たないので、3ビューとログアウトだけになる。
  */
-export function PromptSidebar(props: Props) {
+export function PromptSidebar({ tags = [], ...rest }: Props) {
+  const props: ResolvedProps = { tags, ...rest };
   return (
     <>
       <DesktopRail {...props} />
@@ -142,7 +154,7 @@ function SignOutRow({ expanded, tabIndex }: { expanded: boolean; tabIndex?: numb
   );
 }
 
-function DesktopRail({ view, tags, activeTag }: Props) {
+function DesktopRail({ view, tags, activeTag }: ResolvedProps) {
   const { railExpanded } = useAppShell();
 
   const width = railExpanded
@@ -202,7 +214,7 @@ function DesktopRail({ view, tags, activeTag }: Props) {
   );
 }
 
-function MobileDrawer({ view, tags, activeTag }: Props) {
+function MobileDrawer({ view, tags, activeTag }: ResolvedProps) {
   const { drawerOpen, setDrawerOpen } = useAppShell();
   const pathname = usePathname();
   const searchParams = useSearchParams();

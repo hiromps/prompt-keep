@@ -4,8 +4,11 @@ import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useAppShell } from "@/components/app-shell";
 
+/** サイドバー（レール / ドロワー）がある画面。ProtectedShell / PromptsWorkspace が描く */
+const SIDEBAR_PATHS = ["/prompts", "/profile", "/admin"];
+
 /**
- * サイドバーを開閉するハンバーガー。プロンプト一覧系のパスでのみ表示する。
+ * サイドバーを開閉するハンバーガー。サイドバーのある画面（ログイン後の各画面）でのみ表示する。
  *
  * 画面幅で対象が違う（md 未満はドロワー、md 以上は常設レール）ので、
  * ボタンを2つ置いて CSS で出し分ける。JS で画面幅を判定すると、
@@ -15,7 +18,7 @@ export function SidebarToggle() {
   const pathname = usePathname();
   const { railExpanded, toggleRail, drawerOpen, setDrawerOpen } = useAppShell();
 
-  if (!pathname.startsWith("/prompts")) return null;
+  if (!SIDEBAR_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
 
   const cls = "shrink-0 rounded-full p-2 text-[var(--muted-strong)] hover:bg-[var(--chip)]";
 

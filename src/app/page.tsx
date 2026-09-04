@@ -1,7 +1,16 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/auth/guards";
 
-/** 公開LP。認証不要でアクセスできる。 */
-export default function HomePage() {
+/**
+ * 公開LP。認証不要でアクセスできる。
+ * ログイン済みの人にとってのトップはプロンプト一覧なので、そちらへ送る
+ * （ヘッダーのサイト名を押して LP に戻されるのは、使っている最中には邪魔なだけ）。
+ * JWT を見るだけで DB は引かない。
+ */
+export default async function HomePage() {
+  if (await getSessionUser()) redirect("/prompts");
+
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-12">
       <section className="text-center">
