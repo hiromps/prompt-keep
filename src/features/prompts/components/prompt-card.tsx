@@ -1,7 +1,17 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { Link2 } from "lucide-react";
+import {
+  Archive,
+  ArchiveRestore,
+  Check,
+  Copy,
+  Link2,
+  Pencil,
+  Share2,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 import {
   setPromptPinned,
   setPromptArchived,
@@ -20,8 +30,14 @@ type PromptAction = (
   formData: FormData,
 ) => Promise<ActionResult<{ id: string }>>;
 
+/**
+ * カード下部のアクション。文字ではなくアイコンで1列に並べる。
+ * 狭い画面では2列のカード幅（1枚あたり内側 130px 前後）に5つ収める必要があるので
+ * 28px 角にし、sm 以上では 32px 角にする。名前は title / aria-label が担う。
+ */
 const actionButton =
-  "rounded px-2 py-1 text-xs text-[var(--muted)] hover:bg-[var(--chip)] hover:text-[var(--foreground)] disabled:opacity-40";
+  "inline-flex size-7 shrink-0 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[var(--chip)] hover:text-[var(--foreground)] disabled:opacity-40 sm:size-8";
+const actionIcon = "size-4";
 
 export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView }) {
   const [editing, setEditing] = useState(false);
@@ -142,17 +158,20 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
         </p>
       ) : null}
 
-      {/* タッチ端末とキーボード操作では常に見せる。hover のみだと到達できない */}
-      <div className="mt-2 flex flex-wrap justify-end gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+      {/* タッチ端末とキーボード操作では常に見せる。hover のみだと到達できない。
+          狭い画面では折り返さず、カード幅いっぱいに等間隔で散らす（-mx-1 で左右の余白も使う） */}
+      <div className="-mx-1 mt-2 flex flex-nowrap items-center justify-between opacity-100 transition-opacity sm:mx-0 sm:justify-end sm:gap-0.5 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
         {view === "trashed" ? (
           <>
             <button
               type="button"
               disabled={isPending}
               onClick={() => run(restorePrompt, { id: prompt.id })}
+              title="復元"
+              aria-label="復元"
               className={actionButton}
             >
-              復元
+              <Undo2 className={actionIcon} aria-hidden="true" />
             </button>
             <button
               type="button"
@@ -162,29 +181,40 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
                   run(purgePrompt, { id: prompt.id });
                 }
               }}
+              title="完全に削除"
+              aria-label="完全に削除"
               className={`${actionButton} hover:text-red-600`}
             >
-              完全に削除
+              <Trash2 className={actionIcon} aria-hidden="true" />
             </button>
           </>
         ) : (
           <>
-            <CopyButton text={prompt.body} className={actionButton} />
+            <CopyButton
+              text={prompt.body}
+              className={actionButton}
+              label={<Copy className={actionIcon} aria-hidden="true" />}
+              copiedLabel={<Check className={`${actionIcon} text-green-600`} aria-hidden="true" />}
+            />
             <button
               type="button"
               onClick={() => openEdit("title")}
               disabled={isPending}
+              title="編集"
+              aria-label="編集"
               className={actionButton}
             >
-              編集
+              <Pencil className={actionIcon} aria-hidden="true" />
             </button>
             <button
               type="button"
               onClick={() => setSharing(true)}
               disabled={isPending}
-              className={actionButton}
+              title={prompt.share_token ? "共有中" : "共有"}
+              aria-label={prompt.share_token ? "共有中" : "共有"}
+              className={`${actionButton} ${prompt.share_token ? "text-[var(--foreground)]" : ""}`}
             >
-              {prompt.share_token ? "共有中" : "共有"}
+              <Share2 className={actionIcon} aria-hidden="true" />
             </button>
             <button
               type="button"
@@ -195,17 +225,25 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
                   value: String(view !== "archived"),
                 })
               }
+              title={view === "archived" ? "アーカイブ解除" : "アーカイブ"}
+              aria-label={view === "archived" ? "アーカイブ解除" : "アーカイブ"}
               className={actionButton}
             >
-              {view === "archived" ? "アーカイブ解除" : "アーカイブ"}
+              {view === "archived" ? (
+                <ArchiveRestore className={actionIcon} aria-hidden="true" />
+              ) : (
+                <Archive className={actionIcon} aria-hidden="true" />
+              )}
             </button>
             <button
               type="button"
               disabled={isPending}
               onClick={() => run(trashPrompt, { id: prompt.id })}
+              title="削除"
+              aria-label="削除"
               className={actionButton}
             >
-              削除
+              <Trash2 className={actionIcon} aria-hidden="true" />
             </button>
           </>
         )}
