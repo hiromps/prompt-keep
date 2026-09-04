@@ -44,6 +44,12 @@
 | モーダル編集・サイドバー・モバイルドロワー・PWA | ✅ | 手動 + Playwright |
 | 共有リンク + QR（`/s/<token>`） | ✅ 2026-09-04 | `pnpm test:e2e`（未知/不正トークンの 404）+ Playwright での一連確認: 発行 → 別ブラウザ（Cookie 無し）で 200 → 停止で 404 → 再共有で別トークン・旧リンクは 404 のまま → ゴミ箱で 404。所有者情報が HTML に出ないこと、anon から `prompt_shares` を読めないこと（42501）も確認 |
 
+### CI の前提（2026-09-04 更新）
+`e2e` ジョブは **実際に `supabase start` を実行**し、その URL / キーで dev サーバーを起動する。
+`/s/<token>` の「知らないトークンは 404」は DB に到達して初めて「該当なし」と言えるためで、
+接続できない環境ではアプリが（正しく）500 を返し、この経路を検証できない。
+`quality` ジョブ（typecheck / lint / 単体 / build）は DB を引かないのでダミー値のまま。
+
 ### 認証が要る画面を Playwright で確かめるとき
 セッション Cookie（`authjs.session-token`）を自前で作る場合、`@auth/core/jwt` の
 `encode` に渡すペイロードには **`uid` を入れる**こと（salt は Cookie 名）。

@@ -6,10 +6,7 @@ on:
   pull_request:
 
 env:
-  # CI ではビルド・E2E に実接続しないためダミー値を使う
-  SUPABASE_URL: http://127.0.0.1:54321
-  SUPABASE_ANON_KEY: ci-dummy-anon-key
-  SUPABASE_SERVICE_ROLE_KEY: ci-dummy-service-role-key
+  # OAuth へは CI から一度も接続しないのでダミーで足りる
   AUTH_SECRET: ci-dummy-auth-secret-32-characters!!
   AUTH_GOOGLE_ID: ci-dummy-google-id
   AUTH_GOOGLE_SECRET: ci-dummy-google-secret
@@ -17,6 +14,11 @@ env:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    env:
+      # typecheck / lint / unit / build は DB を引かないためダミーで足りる
+      SUPABASE_URL: http://127.0.0.1:54321
+      SUPABASE_ANON_KEY: ci-dummy-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: ci-dummy-service-role-key
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -46,6 +48,35 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
+      # /s/<token> の「知らないトークンは 404」は、DB に到達して初めて
+      # 「該当なし」と言える。接続できない環境ではアプリが（正しく）500 を返すため、
+      # ダミー値ではこの経路を検証できない。migration 済みの実インスタンスを立てる。
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start Supabase
+        run: supabase start
+      # `-o env` は dotenv 形式（値が " で囲まれる）で出る。GITHUB_ENV は
+      # 引用符を外さないため、そのまま流すと値に " が混ざる。
+      - name: Export Supabase credentials
+        run: |
+          set -euo pipefail
+          supabase status -o env \
+            --override-name api.url=SUPABASE_URL \
+            --override-name auth.anon_key=SUPABASE_ANON_KEY \
+            --override-name auth.service_role_key=SUPABASE_SERVICE_ROLE_KEY \
+            | grep -E '^(SUPABASE_URL|SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY)=' \
+            | sed 's/^\([A-Z_]*\)="\(.*\)"$/\1=\2/' > supabase.env
+          # 取り漏らすと dev サーバーが env 検証で落ちるだけになるので、ここで止める
+          for key in SUPABASE_URL SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY; do
+            grep -q "^${key}=" supabase.env || {
+              echo "::error::${key} was not found in \`supabase status -o env\` output"
+              supabase status -o env | cut -d= -f1
+              exit 1
+            }
+          done
+          cat supabase.env >> "$GITHUB_ENV"
+          rm supabase.env
       - name: E2E tests
         run: pnpm test:e2e
         env:
