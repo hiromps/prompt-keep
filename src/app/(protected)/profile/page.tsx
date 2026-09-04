@@ -1,6 +1,7 @@
 import { requireSessionForPage, resolvePageAccount } from "@/auth/guards";
 import { getProfileByAuthUserId } from "@/features/profile/queries";
 import { ProfileForm } from "@/features/profile/components/profile-form";
+import { signOutAction } from "@/auth/actions";
 
 export const metadata = { title: "プロフィール" };
 
@@ -43,6 +44,15 @@ export default async function ProfilePage() {
       <div className="mt-8">
         <ProfileForm initialDisplayName={profile.display_name} />
       </div>
+      {/* ヘッダーのアバターはここへ来る。サイドバーの無い画面でもログアウトに辿り着けるようにする */}
+      <form action={signOutAction} className="mt-10 border-t border-[var(--border)] pt-6">
+        <button
+          type="submit"
+          className="rounded-md border border-[var(--border)] px-4 py-2 text-sm hover:bg-[var(--chip)]"
+        >
+          ログアウト
+        </button>
+      </form>
     </div>
   );
 }
