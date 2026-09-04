@@ -22,6 +22,19 @@ test.describe("公開ページ", () => {
     await expect(page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
   });
 
+  // /s/<token> はログイン不要でデータを出す唯一の経路。
+  // 「知らないトークンは中身も存在も返さない」ことをここで固定する。
+  test("知らない共有トークンは 404 になる", async ({ page }) => {
+    const response = await page.goto("/s/Ab3-_zZ9Ab3-_zZ9Ab3-_zZ9Ab3-_zZ9");
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole("heading", { name: "ページが見つかりません" })).toBeVisible();
+  });
+
+  test("形式が不正な共有トークンも 404 になる", async ({ page }) => {
+    const response = await page.goto("/s/short");
+    expect(response?.status()).toBe(404);
+  });
+
   test("認証エラーページが表示される", async ({ page }) => {
     await page.goto("/auth-error?error=AccessDenied");
     await expect(page.getByText("アクセスが拒否されました。")).toBeVisible();

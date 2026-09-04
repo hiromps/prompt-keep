@@ -37,6 +37,16 @@ Browser ──(HTML/Server Action)──> Next.js サーバー ──(service ro
 1. **読み取り**: Server Component → `requireUser()` → `features/<x>/queries.ts`（admin client + 所有者スコープ）
 2. **書き込み**: Client form → `features/<x>/actions.ts`（`createAuthAction` = auth + Zod + 共通エラー）→ `revalidatePath`
 
+### 共有ページの例外: `/s/[token]` は認証しない
+共有リンクだけは `(protected)` の外にあり、`requireUser` を通らない。
+不変条件は [auth-and-permissions.md](auth-and-permissions.md) の
+「唯一の未認証データ経路」に集約している。
+
+読み込み中表示（`loading.tsx`）を `src/app` 直下ではなく `src/app/(protected)` に
+置いているのはこのため。ルート直下に置くと全ルートが Suspense 境界に包まれ、
+データ取得より先にシェルが flush されるので、`notFound()` を呼んでも
+**HTTP ステータスが 200 のまま**になる（実測で確認）。
+
 ### prompts の例外: 盤面は Client Component
 `/prompts` 系の3ページは Server Component のまま所有者の全行を1クエリで取得し、
 `PromptsShell`（Server）→ `PromptBoard`（Client）へ渡す。検索は読み込み済みの行に対する

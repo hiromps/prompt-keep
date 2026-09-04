@@ -19,6 +19,23 @@
 | 2. サーバー処理 | `requireUser()` / `requireAdmin()` / `createAuthAction` | **正式な認可**。ID・ロール・所有権・アカウント状態を検証 |
 | 3. DB | RLS 有効 + ポリシーなし | 防御層。anon からの直接アクセス全拒否 |
 
+## 唯一の未認証データ経路: `/s/<token>`
+共有リンク（[ADR 0007](decisions/0007-prompt-sharing.md)）だけは**ログインなしで
+DB の中身を返す**。上の3層のうち1・2が意図的に無い経路なので、不変条件を明記する。
+
+- 入口は `src/features/prompts/shares.ts` の `getSharedPrompt(token)` **1つだけ**。
+  `/s/[token]` 以外から呼ばない
+- 返す列は `title, body, tags, updated_at` に固定。**`owner_id` も `id` も返さない**
+  （`id` は共有していない他の行を推測する手掛かりになる）。ここに列を足さないこと
+- アクセス制御は token の推測不可能性のみ（`randomBytes(24)` の base64url 32文字）。
+  発行は必ずサーバー側。連番・短縮IDにしない
+- **存在しない / 停止済み / ゴミ箱行き はすべて同じ 404**。区別を返すと停止済み
+  リンクの存在が確認できてしまう
+- ページは `noindex, nofollow` + `referrer: no-referrer`、本文はプレーンテキストとして描画
+  （Markdown / HTML として解釈しない）
+- 共有の発行・停止は所有者のみ。`prompt_shares` は `owner_id` を持たないため、
+  アクションは必ず `assertPromptOwner` で `prompts.owner_id = user.id` を先に確認する
+
 ## アカウント状態（suspended）の強制
 - `requireUser` / `requireAdmin` は毎回 `profiles` の **status と role を DB で再確認**する。
   `status != 'active'` は FORBIDDEN（JWT が有効期間中でも即座に全データ操作を遮断）

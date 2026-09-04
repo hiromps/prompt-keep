@@ -61,6 +61,26 @@ Auth.js ユーザー1人につき1行。初回サインイン時に自動作成�
 ゴミ箱へ入れても `archived_at` は消さないので、復元すると元の場所へ戻る。
 ゴミ箱の自動削除は行わない（cron が無いため、手動で完全削除するまで残る）。
 
+### prompt_shares（共有リンク）
+1件のプロンプトを「リンクを知っている人なら誰でも閲覧できる」状態にする。
+設計の理由は [0007-prompt-sharing.md](decisions/0007-prompt-sharing.md)。
+
+| カラム | 型 | 備考 |
+|---|---|---|
+| id | uuid PK | |
+| prompt_id | uuid | FK → public.prompts(id) ON DELETE CASCADE |
+| token | text UNIQUE | URL の `/s/<token>`。`randomBytes(24)` の base64url 32文字。アプリ側で発行する |
+| created_at | timestamptz | |
+| revoked_at | timestamptz NULL | NULL = 有効。停止しても行は消さない |
+
+- 有効な共有は1プロンプトにつき1本まで（`revoked_at IS NULL` の部分ユニークインデックス）
+- 停止は `revoked_at` を立てるだけ。再共有では**必ず新しい token を発行する**ので、
+  いったん止めたリンクが復活することはない
+- `owner_id` を持たない。所有権は必ず `prompts` 側を先に引いて確認する
+  （`assertPromptOwner`, `src/features/prompts/actions.ts`）
+- 配信条件: `revoked_at IS NULL AND prompts.deleted_at IS NULL`。
+  アーカイブ済みは配信を続ける（アーカイブは持ち主の整理都合であって共有の停止ではない）
+
 ## 新テーブル設計パターン
 1. 所有データは `owner_id uuid REFERENCES next_auth.users(id) ON DELETE CASCADE`
 2. `ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`（ポリシーは書かない = 防御層）
@@ -73,4 +93,4 @@ Auth.js ユーザー1人につき1行。初回サインイン時に自動作成�
 [0006](decisions/0006-service-role-grants.md)）。
 
 ## プロジェクト固有テーブル
-現在は `prompts` のみ。
+`prompts` と `prompt_shares`。

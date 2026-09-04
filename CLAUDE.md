@@ -23,3 +23,4 @@
 - 構成フラグ: `project.config.ts`
 - プロンプトのデータモデル（タグ配列・通常/アーカイブ/ゴミ箱の3状態）: `docs/decisions/0005-prompt-data-model.md` と `docs/data-model.md`
 - `public` への service_role 明示 GRANT（これが無いとログイン時点で 42501 になる）: `docs/decisions/0006-service-role-grants.md`
+- 共有リンク `/s/<token>`（**唯一の未認証データ経路**。列を足さない・404 の出し分けをしない）: `docs/decisions/0007-prompt-sharing.md` と `docs/auth-and-permissions.md`
