@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
+import { AppShellProvider } from "@/components/app-shell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +33,14 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <SiteHeader />
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">{children}</main>
+        {/*
+          横幅の制約はページ側で付ける。プロンプト一覧はサイドバーを画面の左端まで
+          寄せるため、ここで中央寄せの max-width を掛けてしまうと逃げられない。
+        */}
+        <AppShellProvider>
+          <SiteHeader />
+          <main className="flex min-h-0 w-full flex-1 flex-col">{children}</main>
+        </AppShellProvider>
       </body>
     </html>
   );

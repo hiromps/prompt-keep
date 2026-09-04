@@ -19,7 +19,7 @@ export default async function AdminPage() {
   const profiles = await listAllProfiles();
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-5xl px-4 py-6">
       <h1 className="text-2xl font-bold">ユーザー管理</h1>
       <p className="mt-1 text-sm text-zinc-600">登録ユーザー一覧（最新100件）</p>
       <table className="mt-6 w-full text-left text-sm">

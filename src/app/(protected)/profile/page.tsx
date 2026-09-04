@@ -12,14 +12,14 @@ export default async function ProfilePage() {
   if (!profile) {
     // 通常は初回サインイン時に作成される。欠損時は再ログインを促す
     return (
-      <p className="text-sm text-zinc-600">
+      <p className="mx-auto w-full max-w-3xl px-4 py-6 text-sm text-[var(--muted)]">
         プロフィールが見つかりません。一度ログアウトして再ログインしてください。
       </p>
     );
   }
 
   return (
-    <div className="max-w-md">
+    <div className="mx-auto w-full max-w-3xl px-4 py-6">
       <h1 className="text-2xl font-bold">プロフィール</h1>
       <dl className="mt-6 space-y-2 text-sm">
         <div className="flex gap-2">

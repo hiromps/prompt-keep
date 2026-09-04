@@ -38,7 +38,7 @@ export default async function SignInPage({
     : null;
 
   return (
-    <div className="mx-auto max-w-sm py-16 text-center">
+    <div className="mx-auto max-w-sm px-4 py-16 text-center">
       <h1 className="text-2xl font-bold">ログイン</h1>
       <p className="mt-2 text-sm text-zinc-600">
         Googleアカウントでログインしてください。

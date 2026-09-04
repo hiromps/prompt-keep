@@ -3,7 +3,7 @@ import Link from "next/link";
 /** 公開LP。認証不要でアクセスできる。 */
 export default function HomePage() {
   return (
-    <div className="py-12">
+    <div className="mx-auto w-full max-w-5xl px-4 py-12">
       <section className="text-center">
         <h1 className="text-4xl font-bold tracking-tight">プロンプトを、探さない</h1>
         <p className="mx-auto mt-4 max-w-xl text-[var(--muted-strong)]">

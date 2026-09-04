@@ -27,7 +27,7 @@ export default async function AuthErrorPage({
   const message = ERROR_MESSAGES[error ?? "Default"] ?? ERROR_MESSAGES.Default;
 
   return (
-    <div className="mx-auto max-w-sm py-16 text-center">
+    <div className="mx-auto max-w-sm px-4 py-16 text-center">
       <h1 className="text-2xl font-bold">認証エラー</h1>
       <p className="mt-4 text-sm text-zinc-600">{message}</p>
       <Link
