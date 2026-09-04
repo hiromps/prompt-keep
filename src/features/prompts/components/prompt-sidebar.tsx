@@ -3,8 +3,9 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Lightbulb, Archive, Trash2, Tag, X } from "lucide-react";
+import { Lightbulb, Archive, Trash2, Tag, X, LogOut } from "lucide-react";
 import { useAppShell } from "@/components/app-shell";
+import { signOutAction } from "@/auth/actions";
 import type { PromptView, TagCount } from "@/features/prompts/model";
 
 const NAV = [
@@ -120,6 +121,27 @@ function TagItems({
   );
 }
 
+/**
+ * ログアウト。サイドバーの一番下に置く（ヘッダーのアバターからは外した）。
+ * 畳んだレールではアイコンだけにし、名前は title / aria-label で補う。
+ */
+function SignOutRow({ expanded, tabIndex }: { expanded: boolean; tabIndex?: number }) {
+  return (
+    <form action={signOutAction}>
+      <button
+        type="submit"
+        tabIndex={tabIndex}
+        title={expanded ? undefined : "ログアウト"}
+        aria-label="ログアウト"
+        className={navRowClass(false, expanded)}
+      >
+        <LogOut className="size-5 shrink-0" aria-hidden="true" />
+        <span className={expanded ? "" : "sr-only"}>ログアウト</span>
+      </button>
+    </form>
+  );
+}
+
 function DesktopRail({ view, tags, activeTag }: Props) {
   const { railExpanded } = useAppShell();
 
@@ -129,10 +151,10 @@ function DesktopRail({ view, tags, activeTag }: Props) {
       "w-[72px] overflow-visible";
 
   return (
+    // ヘッダー分を引いた高さいっぱいに伸ばし、ログアウトを一番下（mt-auto）に置く
     <nav
       aria-label="プロンプトの絞り込み"
-      className={`sticky top-[53px] hidden shrink-0 self-start py-2 transition-[width] duration-200 md:block ${width}`}
-      style={railExpanded ? { maxHeight: "calc(100vh - 53px)" } : undefined}
+      className={`sticky top-[53px] hidden h-[calc(100vh-53px)] shrink-0 flex-col self-start py-2 transition-[width] duration-200 md:flex ${width}`}
     >
       <ul>
         {NAV.map(({ view: v, href, label, Icon }) => {
@@ -173,6 +195,9 @@ function DesktopRail({ view, tags, activeTag }: Props) {
           );
         })}
       </ul>
+      <div className="mt-auto border-t border-[var(--border)] pt-2">
+        <SignOutRow expanded={railExpanded} />
+      </div>
     </nav>
   );
 }
@@ -217,7 +242,7 @@ function MobileDrawer({ view, tags, activeTag }: Props) {
         id="prompt-drawer"
         aria-label="プロンプトの絞り込み"
         aria-hidden={!drawerOpen}
-        className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] overflow-y-auto bg-[var(--background)] py-2 shadow-xl transition-transform duration-200 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col overflow-y-auto bg-[var(--background)] py-2 shadow-xl transition-transform duration-200 ${
           drawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -259,6 +284,9 @@ function MobileDrawer({ view, tags, activeTag }: Props) {
             </li>
           ))}
         </ul>
+        <div className="mt-auto border-t border-[var(--border)] pt-2">
+          <SignOutRow expanded tabIndex={drawerOpen ? undefined : -1} />
+        </div>
       </nav>
     </div>
   );

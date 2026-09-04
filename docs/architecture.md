@@ -108,6 +108,13 @@ Supabase Realtime を直接購読していないのは、認証が Auth.js で S
 オフライン時に出す静的ページ `public/offline.html` 1枚だけで、
 画面遷移が失敗したときにそれを返す。
 
+### ログアウトの置き場所
+ヘッダー右上は Google アカウントのプロフィール画像（`UserAvatar`、無ければ頭文字）で、
+押すと `/profile` へ行く。ログアウトはサイドバー（レール / ドロワー）の一番下と、
+サイドバーの無い画面から辿り着けるようプロフィール画面の末尾に置く。
+どちらも `src/auth/actions.ts` の `signOutAction`（Server Action）を `<form action>` で呼ぶ。
+画像は `*.googleusercontent.com` から来るので `next.config.ts` の `images.remotePatterns` で許可している。
+
 ### ヘッダーとページ本体をつなぐ `AppShellProvider`
 検索ボックスとハンバーガーは `SiteHeader`（root layout）にあり、絞り込まれる一覧と
 サイドバーはページ側にある。親子関係が無く props で渡せないので、

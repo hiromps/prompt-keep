@@ -13,6 +13,8 @@ export type AuthenticatedUser = {
   role: AppRole;
   email?: string | null;
   name?: string | null;
+  /** Google のプロフィール画像 URL（JWT の picture）。ヘッダーのアバターに使う */
+  image?: string | null;
 };
 
 /**
@@ -31,6 +33,7 @@ export const getSessionUser = cache(async (): Promise<AuthenticatedUser | null> 
     role: session.user.role,
     email: session.user.email,
     name: session.user.name,
+    image: session.user.image,
   };
 });
 

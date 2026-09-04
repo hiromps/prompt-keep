@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { projectConfig } from "@config";
 import { getSessionUser } from "@/auth/guards";
-import { signOut } from "@/auth";
 import { SidebarToggle } from "@/components/sidebar-toggle";
 import { HeaderSearch } from "@/components/header-search";
+import { UserAvatar } from "@/components/user-avatar";
 
 export async function SiteHeader() {
   const user = await getSessionUser();
@@ -33,19 +33,16 @@ export async function SiteHeader() {
                   管理
                 </Link>
               ) : null}
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut({ redirectTo: "/" });
-                }}
+              {/* ログアウトはサイドバーの一番下（プロンプト画面）とプロフィール画面にある。
+                  右上は「誰でログインしているか」を示すアバターで、押すとプロフィールへ */}
+              <Link
+                href="/profile"
+                aria-label={`${user.name || user.email || "アカウント"}（プロフィール）`}
+                title={user.name || user.email || undefined}
+                className="shrink-0 rounded-full ring-[var(--border)] ring-offset-2 hover:ring-2"
               >
-                <button
-                  type="submit"
-                  className="rounded-md border border-[var(--border)] px-3 py-1.5 whitespace-nowrap"
-                >
-                  ログアウト
-                </button>
-              </form>
+                <UserAvatar image={user.image} name={user.name} email={user.email} />
+              </Link>
             </>
           ) : (
             <Link
