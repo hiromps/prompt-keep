@@ -40,7 +40,8 @@ export function PromptBoard({ prompts, view }: { prompts: Prompt[]; view: Prompt
     // カードは必ずブロックレベルにすること。inline-block にすると Chrome が
     // カラム間で改ページせず、全カードが1列目に積み上がる（実測で確認済み）。
     // カード自体が列をまたいで割れないよう break-inside-avoid も必要。
-    <div className="columns-1 gap-4 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-7">
+    // 最小幅でも2列（Keep と同じく、スマホでも一覧性を優先する）。
+    <div className="columns-2 gap-4 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-7">
       {visible.map((prompt) => (
         <PromptCard key={prompt.id} prompt={prompt} view={view} />
       ))}
