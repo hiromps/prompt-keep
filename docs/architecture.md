@@ -46,6 +46,20 @@ Browser ──(HTML/Server Action)──> Next.js サーバー ──(service ro
 ビューの絞り込みで DB を叩き分けないのは、サイドバーのタグ件数とクライアント検索が
 常に全件を前提にできるようにするため（ビューごとに絞ると、アーカイブ画面でタグ件数がずれる）。
 
+### 端末をまたいだ反映は router.refresh() のポーリング
+スマホで追加したプロンプトを PC 側でリロードなしに見せるため、
+`PromptsAutoRefresh` がタブの表示中だけ 20 秒間隔で `router.refresh()` を呼ぶ。
+タブが隠れている間は止め、戻ってきた瞬間は間隔を待たずに即時再取得する
+（「スマホで足して PC に戻る」が実際の使い方なので、ここが一番効く）。
+
+`router.refresh()` は Server Component だけを再実行するので、入力途中の本文や
+開いている編集モーダル、検索文字列といったクライアント state は保持される。
+
+Supabase Realtime を直接購読していないのは、認証が Auth.js で Supabase Auth では
+ないため。ブラウザから購読するには Supabase 用の JWT を別途発行し、その claim を
+参照する RLS ポリシーを足す必要があり、[0002](decisions/0002-server-only-data-access-rls-as-defense.md)
+の「クライアントに DB を触らせない」方針を崩すことになる。
+
 ### ヘッダーとページ本体をつなぐ `AppShellProvider`
 検索ボックスとハンバーガーは `SiteHeader`（root layout）にあり、絞り込まれる一覧と
 サイドバーはページ側にある。親子関係が無く props で渡せないので、
