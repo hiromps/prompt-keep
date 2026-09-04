@@ -37,7 +37,8 @@ async function writeToClipboard(text: string): Promise<boolean> {
 
 /**
  * label は「何をコピーするか」でボタンごとに変える（本文 / 共有リンク）。
- * 既定値は本文コピー用。カードのアクション列がこの形で並んでいる。
+ * 既定値は本文コピー用。文字でもアイコンでもよく、カードではアイコンを渡している
+ * （読み上げ用の名前は title が担うので、アイコンのときも aria-label は付く）。
  */
 export function CopyButton({
   text,
@@ -48,8 +49,8 @@ export function CopyButton({
 }: {
   text: string;
   className?: string;
-  label?: string;
-  copiedLabel?: string;
+  label?: React.ReactNode;
+  copiedLabel?: React.ReactNode;
   title?: string;
 }) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
