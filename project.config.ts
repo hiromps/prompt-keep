@@ -5,8 +5,8 @@
  */
 export const projectConfig = {
   meta: {
-    name: "nextjs-mvp-starter",
-    description: "個人開発者向け・再利用可能な Next.js MVP スターター",
+    name: "prompt-keep",
+    description: "よく使うAIプロンプトを貯めて検索・コピーする個人用プロンプト管理",
     version: "0.1.0",
   },
   framework: "nextjs-app-router",
@@ -35,7 +35,7 @@ export const projectConfig = {
     ai: false,
     analytics: false,
     auditLogs: false,
-    search: false,
+    search: true,
     i18n: false,
   },
   deployment: {

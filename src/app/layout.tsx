@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Next.js MVP Starter",
-    template: "%s | Next.js MVP Starter",
+    default: "prompt-keep",
+    template: "%s | prompt-keep",
   },
-  description: "Auth.js + Supabase PostgreSQL で新規MVPを高速に開始するスターター",
+  description: "よく使うAIプロンプトを貯めて、探して、すぐコピーできる個人用のプロンプト管理",
 };
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <SiteHeader />
-        <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">{children}</main>
+        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">{children}</main>
       </body>
     </html>
   );

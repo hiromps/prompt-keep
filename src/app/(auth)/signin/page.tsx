@@ -18,7 +18,7 @@ const SIGNIN_ERROR_MESSAGES: Record<string, string> = {
 };
 
 /**
- * サインイン画面。ログイン済みならダッシュボードへ。
+ * サインイン画面。ログイン済みならプロンプト一覧へ。
  * callbackUrl は同一オリジンの相対パスのみ許可する（オープンリダイレクト防止）。
  * searchParams は同名クエリが複数あると string[] になるため firstParam で正規化する。
  */
@@ -28,10 +28,10 @@ export default async function SignInPage({
   searchParams: Promise<{ callbackUrl?: string | string[]; error?: string | string[] }>;
 }) {
   const user = await getSessionUser();
-  if (user) redirect("/dashboard");
+  if (user) redirect("/prompts");
 
   const params = await searchParams;
-  const redirectTo = safeInternalPath(firstParam(params.callbackUrl)) ?? "/dashboard";
+  const redirectTo = safeInternalPath(firstParam(params.callbackUrl)) ?? "/prompts";
   const errorType = firstParam(params.error);
   const errorMessage = errorType
     ? (SIGNIN_ERROR_MESSAGES[errorType] ?? SIGNIN_ERROR_MESSAGES.Default)

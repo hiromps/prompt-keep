@@ -7,7 +7,7 @@ import { WEB_SERVER_ENV } from "../../playwright.config";
  * ローカルでの手動検証手順を docs/implementation-status.md に記載している。
  */
 test.describe("保護ルート（未認証）", () => {
-  for (const path of ["/dashboard", "/profile", "/admin"]) {
+  for (const path of ["/prompts", "/prompts/archive", "/prompts/trash", "/profile", "/admin"]) {
     test(`${path} は callbackUrl 付きでサインインへリダイレクトされる`, async ({ page }) => {
       await page.goto(path);
       await page.waitForURL("**/signin**");

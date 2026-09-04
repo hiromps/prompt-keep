@@ -10,13 +10,13 @@ export async function SiteHeader() {
     <header className="border-b border-zinc-200">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
         <Link href="/" className="font-semibold">
-          MVP Starter
+          prompt-keep
         </Link>
         <nav className="flex items-center gap-4 text-sm">
           {user ? (
             <>
-              <Link href="/dashboard" className="hover:underline">
-                ダッシュボード
+              <Link href="/prompts" className="hover:underline">
+                プロンプト
               </Link>
               <Link href="/profile" className="hover:underline">
                 プロフィール

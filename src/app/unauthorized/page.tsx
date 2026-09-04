@@ -11,10 +11,10 @@ export default function UnauthorizedPage() {
         このページを表示する権限がありません。必要な場合は管理者にお問い合わせください。
       </p>
       <Link
-        href="/dashboard"
+        href="/prompts"
         className="mt-8 inline-block rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
       >
-        ダッシュボードへ戻る
+        プロンプト一覧へ戻る
       </Link>
     </div>
   );
