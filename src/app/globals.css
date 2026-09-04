@@ -83,6 +83,18 @@ dialog.is-closing::backdrop {
   animation: dialog-backdrop-in 200ms ease reverse both;
 }
 
+/*
+ * 狭い画面ではモーダルをその場でフェードさせる（prompt-editor-dialog.tsx）。
+ * 背景の明るさが先に戻ると、まだ濃いモーダルだけが宙に浮いて見えるので、
+ * こちらも同じ長さ・同じ立ち上がりで薄くする。260ms は JS 側の
+ * NARROW_CLOSE_DURATION と対。
+ */
+@media (max-width: 767px) {
+  dialog.is-closing::backdrop {
+    animation: dialog-backdrop-in 260ms ease-in reverse both;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   dialog[open]::backdrop,
   dialog.is-closing::backdrop {

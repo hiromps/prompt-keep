@@ -8,9 +8,16 @@ import type { Prompt } from "@/features/prompts/model";
 import type { ActionError } from "@/lib/errors";
 
 const DURATION = 200;
+/** 狭い画面の閉じアニメーション。フェードを見せるぶん少し長く取る（globals.css と揃える） */
+const NARROW_CLOSE_DURATION = 260;
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** サイドバーがドロワーになる幅。Tailwind の md 未満と同じ境目にする */
+function isNarrow() {
+  return window.matchMedia("(max-width: 767px)").matches;
 }
 
 /**
@@ -86,14 +93,25 @@ export function PromptEditorDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /** 閉じるアニメーションを流してから dialog を閉じる。 */
+  /**
+   * 閉じるアニメーションを流してから dialog を閉じる。
+   *
+   * 狭い画面ではカードへ吸い込ませない。画面幅いっぱいのモーダルが一覧の小さな
+   * カードまで一気に縮むと、動きが速すぎて「消えた」ではなく「パッと切れた」に見える
+   * （カードが画面外にあれば、そちらへ飛んでいくだけになる）。その場で薄くしながら
+   * わずかに縮めるほうが、閉じたことがはっきり伝わる。
+   * 広い画面はカードとの距離が近いので、開いた場所へ戻す動きのままにする。
+   */
   const requestClose = () => {
     const dialog = dialogRef.current;
     if (!dialog || closing.current) return;
     closing.current = true;
 
-    const to = cardRect && !prefersReducedMotion() ? transformFromCard(dialog, cardRect) : null;
-    if (!to) {
+    const narrow = isNarrow();
+    const animated = !prefersReducedMotion();
+    const to = animated && !narrow && cardRect ? transformFromCard(dialog, cardRect) : null;
+    // 広い画面でカードの位置が取れないときは、戻す先が無いのでそのまま閉じる
+    if (!animated || (!narrow && !to)) {
       dialog.close();
       return;
     }
@@ -101,11 +119,19 @@ export function PromptEditorDialog({
     dialog.classList.add("is-closing");
     dialog
       .animate(
-        [
-          { transform: "translate(0, 0) scale(1, 1)", opacity: 1 },
-          { transform: to, opacity: 0 },
-        ],
-        { duration: DURATION, easing: "cubic-bezier(0.4, 0, 1, 1)" },
+        to
+          ? [
+              { transform: "translate(0, 0) scale(1, 1)", opacity: 1 },
+              { transform: to, opacity: 0 },
+            ]
+          : [
+              { transform: "scale(1)", opacity: 1 },
+              { transform: "scale(0.94)", opacity: 0 },
+            ],
+        to
+          ? { duration: DURATION, easing: "cubic-bezier(0.4, 0, 1, 1)" }
+          : // 立ち上がりを速くして、薄くなっていく過程を見せる
+            { duration: NARROW_CLOSE_DURATION, easing: "ease-out" },
       )
       .finished.catch(() => {})
       .finally(() => dialog.close());
