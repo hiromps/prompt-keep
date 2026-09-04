@@ -220,9 +220,10 @@ function MobileDrawer({ view, tags, activeTag }: Props) {
               </Link>
               {v === "active" && tags.length > 0 ? (
                 <div className="mt-1 mb-2">
-                  <p className="px-6 py-1 text-xs font-medium text-[var(--muted)]">タグ</p>
+                  <p className="px-4 py-1 text-xs font-medium text-[var(--muted)]">タグ</p>
                   <ul>
-                    <TagItems tags={tags} activeTag={activeTag} nested onNavigate={close} />
+                    {/* 幅の狭いドロワーでは字下げしない。タグ名の前が空くと読みにくい */}
+                    <TagItems tags={tags} activeTag={activeTag} nested={false} onNavigate={close} />
                   </ul>
                 </div>
               ) : null}
