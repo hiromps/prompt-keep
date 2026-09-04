@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import {
-  updatePrompt,
   setPromptPinned,
   setPromptArchived,
   trashPrompt,
@@ -10,8 +9,7 @@ import {
   purgePrompt,
 } from "@/features/prompts/actions";
 import { CopyButton } from "@/features/prompts/components/copy-button";
-import { TagsInput } from "@/features/prompts/components/tags-input";
-import { FieldError } from "@/components/form-feedback";
+import { PromptEditorDialog } from "@/features/prompts/components/prompt-editor-dialog";
 import type { Prompt, PromptView } from "@/features/prompts/model";
 import type { ActionError, ActionResult } from "@/lib/errors";
 
@@ -25,11 +23,11 @@ const actionButton =
 
 export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView }) {
   const [editing, setEditing] = useState(false);
-  const [title, setTitle] = useState(prompt.title);
-  const [body, setBody] = useState(prompt.body);
-  const [tags, setTags] = useState(prompt.tags);
-  const [error, setError] = useState<ActionError | null>(null);
   const [focusField, setFocusField] = useState<"title" | "body">("title");
+  // 編集モーダルを「カードのある場所から広がる」ように見せるための開始位置
+  const [cardRect, setCardRect] = useState<DOMRect | null>(null);
+  const cardRef = useRef<HTMLElement>(null);
+  const [error, setError] = useState<ActionError | null>(null);
   const [isPending, startTransition] = useTransition();
 
   /**
@@ -56,79 +54,17 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
    * カードの文字をクリックした流れで書き始められる。
    */
   const openEdit = (field: "title" | "body" = "title") => {
-    // 前回の編集内容とエラーを持ち越さない
-    setTitle(prompt.title);
-    setBody(prompt.body);
-    setTags(prompt.tags);
-    setError(null);
+    setError(null); // 前回のエラーを持ち越さない
     setFocusField(field);
+    setCardRect(cardRef.current?.getBoundingClientRect() ?? null);
     setEditing(true);
   };
 
   // ゴミ箱の中身は編集させない（復元 / 完全削除のみ）
   const canEdit = view !== "trashed";
 
-  if (editing) {
-    return (
-      <article className="mb-4 break-inside-avoid rounded-lg border border-[var(--accent)] bg-[var(--card)] p-3 shadow-sm">
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="タイトル"
-          aria-label="タイトル"
-          maxLength={100}
-          autoFocus={focusField === "title"}
-          className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-[var(--muted)]"
-        />
-        <FieldError errors={error?.fieldErrors?.title} />
-        <textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="プロンプト本文"
-          aria-label="プロンプト本文"
-          rows={8}
-          autoFocus={focusField === "body"}
-          className="mt-2 w-full resize-y bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
-        />
-        <FieldError errors={error?.fieldErrors?.body} />
-        <div className="mt-2">
-          <TagsInput value={tags} onChange={setTags} />
-        </div>
-        {error && error.code !== "VALIDATION" ? (
-          <p role="alert" className="mt-2 text-sm text-red-600">
-            {error.message}
-          </p>
-        ) : null}
-        <div className="mt-3 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => setEditing(false)}
-            disabled={isPending}
-            className={actionButton}
-          >
-            キャンセル
-          </button>
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() =>
-              run(
-                updatePrompt,
-                { id: prompt.id, title, body, tags: tags.join(",") },
-                () => setEditing(false),
-              )
-            }
-            className="rounded bg-[var(--foreground)] px-3 py-1 text-xs font-medium text-[var(--card)] disabled:opacity-40"
-          >
-            {isPending ? "保存中…" : "保存"}
-          </button>
-        </div>
-      </article>
-    );
-  }
-
   return (
-    <article className="group mb-4 break-inside-avoid rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 transition-shadow hover:shadow-md">
+    <article ref={cardRef} className="group mb-4 break-inside-avoid rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between gap-2">
         {/* タイトルは任意。無いときは見出しを出さず本文だけ見せる（Keep と同じ）。
             本文1行目を見出しに流用すると、直下の本文と重複して読みにくい。 */}
@@ -254,6 +190,15 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
           </>
         )}
       </div>
+
+      {editing ? (
+        <PromptEditorDialog
+          prompt={prompt}
+          focusField={focusField}
+          cardRect={cardRect}
+          onClose={() => setEditing(false)}
+        />
+      ) : null}
     </article>
   );
 }

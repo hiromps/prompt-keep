@@ -39,3 +39,33 @@ body {
   font-family: var(--font-geist-sans), "Hiragino Kaku Gothic ProN", "Yu Gothic UI", Meiryo,
     sans-serif;
 }
+
+/*
+ * 編集モーダルの背景。<dialog>.showModal() の ::backdrop を暗転させる。
+ * 開くときはフェードイン、閉じるときは（JS が付ける is-closing で）逆再生する。
+ * カード本体のアニメーションは Web Animations API 側で行っている
+ * （::backdrop は要素ではないので JS からは触れない）。
+ */
+@keyframes dialog-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+dialog[open]::backdrop {
+  animation: dialog-backdrop-in 200ms ease both;
+}
+
+dialog.is-closing::backdrop {
+  animation: dialog-backdrop-in 200ms ease reverse both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog[open]::backdrop,
+  dialog.is-closing::backdrop {
+    animation: none;
+  }
+}
