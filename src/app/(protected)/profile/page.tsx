@@ -1,4 +1,4 @@
-import { requirePageUser } from "@/auth/guards";
+import { requireSessionForPage, resolvePageAccount } from "@/auth/guards";
 import { getProfileByAuthUserId } from "@/features/profile/queries";
 import { ProfileForm } from "@/features/profile/components/profile-form";
 
@@ -6,8 +6,13 @@ export const metadata = { title: "プロフィール" };
 
 /** プロフィール画面（サンプルA）。自分のプロフィールの表示と更新。 */
 export default async function ProfilePage() {
-  const user = await requirePageUser("/profile");
-  const profile = await getProfileByAuthUserId(user.id);
+  const session = await requireSessionForPage("/profile");
+  // 状態確認（停止中なら /unauthorized）と本体の取得は互いに依存しないので並べて待つ。
+  // 取得結果は状態確認が通ってから描画されるので、停止中の人に中身が出ることはない
+  const [user, profile] = await Promise.all([
+    resolvePageAccount(session),
+    getProfileByAuthUserId(session.id),
+  ]);
 
   if (!profile) {
     // 通常は初回サインイン時に作成される。欠損時は再ログインを促す

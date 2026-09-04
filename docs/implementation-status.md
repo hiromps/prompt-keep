@@ -42,6 +42,7 @@
 |---|---|---|
 | プロンプト CRUD / タグ / 検索 / コピー / ピン / アーカイブ / ゴミ箱 | ✅ | `pnpm check` + 手動 |
 | モーダル編集・サイドバー・モバイルドロワー・PWA | ✅ | 手動 + Playwright |
+| ビュー切替・タグ絞り込みのサーバー往復ゼロ化（prompts/layout.tsx がデータを保持、[ADR 0008](decisions/0008-prompts-layout-owns-data.md)） | ✅ 2026-09-04 | `tests/e2e/prompts-navigation.spec.ts`（ログイン済み: スピナーが出ない・page セグメントだけ取得・タグ切替は通信ゼロ） |
 | 共有リンク + QR（`/s/<token>`） | ✅ 2026-09-04 | `pnpm test:e2e`（未知/不正トークンの 404）+ Playwright での一連確認: 発行 → 別ブラウザ（Cookie 無し）で 200 → 停止で 404 → 再共有で別トークン・旧リンクは 404 のまま → ゴミ箱で 404。所有者情報が HTML に出ないこと、anon から `prompt_shares` を読めないこと（42501）も確認 |
 
 ### CI の前提（2026-09-04 更新）

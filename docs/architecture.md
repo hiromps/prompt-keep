@@ -34,8 +34,13 @@ Browser ──(HTML/Server Action)──> Next.js サーバー ──(service ro
 | `project.config.ts` | プロジェクト構成の単一情報源 |
 
 ## リクエスト処理の型
-1. **読み取り**: Server Component → `requireUser()` → `features/<x>/queries.ts`（admin client + 所有者スコープ）
+1. **読み取り**: Server Component → `requireSessionForPage()`（JWT のみ）→ `Promise.all(resolvePageAccount(), features/<x>/queries.ts)`（admin client + 所有者スコープ）。
+   状態確認とデータ取得は互いに依存しないので並べて待つ。他に待つものが無い単純なページは `requirePageUser()` 一発でもよい
 2. **書き込み**: Client form → `features/<x>/actions.ts`（`createAuthAction` = auth + Zod + 共通エラー）→ `revalidatePath`
+3. **同じデータの別ビュー**（`/prompts` 配下）: 共有 `layout.tsx` が取得し、`page.tsx` は URL と正確な callbackUrl のためだけに置く（[ADR 0008](decisions/0008-prompts-layout-owns-data.md)）
+
+`getSessionUser` と `profiles` の状態照会は React `cache()` で包んであり、同じリクエスト内なら
+root layout の `SiteHeader`・レイアウト・ページが何度呼んでも 1 回しか走らない。
 
 ### 共有ページの例外: `/s/[token]` は認証しない
 共有リンクだけは `(protected)` の外にあり、`requireUser` を通らない。
@@ -47,14 +52,28 @@ Browser ──(HTML/Server Action)──> Next.js サーバー ──(service ro
 データ取得より先にシェルが flush されるので、`notFound()` を呼んでも
 **HTTP ステータスが 200 のまま**になる（実測で確認）。
 
-### prompts の例外: 盤面は Client Component
-`/prompts` 系の3ページは Server Component のまま所有者の全行を1クエリで取得し、
-`PromptsShell`（Server）→ `PromptBoard`（Client）へ渡す。検索は読み込み済みの行に対する
-クライアント側フィルタで、キー入力ごとのサーバー往復を避けている。
+### prompts の例外: データはレイアウトが持ち、ビューはクライアントが決める
+`src/app/(protected)/prompts/layout.tsx` が所有者の全行を1クエリで取得し、
+`PromptsWorkspace`（Client）へ渡す。通常 / アーカイブ / ゴミ箱 は
+`useSelectedLayoutSegment()`、タグは `useSearchParams()` でクライアント側が絞り込む。
+検索も読み込み済みの行に対するクライアント側フィルタで、キー入力ごとのサーバー往復を避けている。
 そのため盤面より内側（カード・クイック入力）は `"use client"` になる。
+
+クライアント遷移では出発地と行き先が共有するレイアウトより下しか再描画されないので、
+ビューの切り替えでサーバーに戻らない。3つの `page.tsx` は URL を存在させ、未ログイン時に
+正確な callbackUrl で `/signin` へ飛ばすためだけにあり、`null` を返す。
+3ビューのリンクは `prefetch={true}`（動的ページでも中身を事前取得）、通常ビュー内のタグ切り替えは
+`pushState`（通信ゼロ）。理由と却下案は [ADR 0008](decisions/0008-prompts-layout-owns-data.md)。
+
+レイアウトが Cookie / DB を読むと `(protected)/loading.tsx` は効かない（レイアウトの描画が終わるまで
+遷移が止まる）ので、データ待ちはレイアウト内の `<Suspense>` に閉じ込めて、領域に入るときだけ
+スピナーを出している。
 
 ビューの絞り込みで DB を叩き分けないのは、サイドバーのタグ件数とクライアント検索が
 常に全件を前提にできるようにするため（ビューごとに絞ると、アーカイブ画面でタグ件数がずれる）。
+
+レイアウトに置いても古くならない: 全アクションが `revalidatePath("/prompts", "layout")` を呼び、
+その応答でレイアウトごと再描画される。`router.refresh()` も共有レイアウトを含めて再取得する。
 
 ### 端末をまたいだ反映は router.refresh() のポーリング
 スマホで追加したプロンプトを PC 側でリロードなしに見せるため、
