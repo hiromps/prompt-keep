@@ -1,7 +1,6 @@
 import { PromptComposer } from "@/features/prompts/components/prompt-composer";
 import { PromptBoard } from "@/features/prompts/components/prompt-board";
 import { PromptSidebar } from "@/features/prompts/components/prompt-sidebar";
-import { PromptNavMobile } from "@/features/prompts/components/prompt-nav-mobile";
 import { PromptsAutoRefresh } from "@/features/prompts/components/prompts-auto-refresh";
 import type { Prompt, PromptView, TagCount } from "@/features/prompts/model";
 
@@ -31,7 +30,6 @@ export function PromptsShell({
       <PromptSidebar view={view} tags={tags} activeTag={activeTag} />
 
       <div className="min-w-0 flex-1 px-4 py-4">
-        <PromptNavMobile view={view} />
         {view === "active" ? (
           <div className="mx-auto mb-6 max-w-xl">
             <PromptComposer />
