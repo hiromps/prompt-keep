@@ -45,3 +45,7 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 !.env.example
+
+# 調査・検証用の使い捨てスクリプト（コミットしない）
+*.tmp.mjs
+*.tmp.json
