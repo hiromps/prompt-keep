@@ -4,6 +4,7 @@ import {
   createPromptSchema,
   promptIdSchema,
   promptFlagSchema,
+  isShareToken,
   normalizeTags,
   MAX_TAGS,
 } from "@/schemas/prompt";
@@ -108,5 +109,22 @@ describe("promptFlagSchema", () => {
         value: "toggle",
       }).success,
     ).toBe(false);
+  });
+});
+
+describe("isShareToken", () => {
+  it("発行する形式（base64url 32文字）を通す", () => {
+    expect(isShareToken("Ab3-_zZ9Ab3-_zZ9Ab3-_zZ9Ab3-_zZ9")).toBe(true);
+  });
+
+  it("短すぎる・長すぎるものを拒否する", () => {
+    expect(isShareToken("short")).toBe(false);
+    expect(isShareToken("a".repeat(65))).toBe(false);
+  });
+
+  it("base64url 以外の文字を拒否する（URL からそのまま渡るため）", () => {
+    expect(isShareToken("Ab3-_zZ9Ab3-_zZ9Ab3-_zZ9Ab3-_zZ/")).toBe(false);
+    expect(isShareToken("Ab3-_zZ9Ab3-_zZ9Ab3-_zZ9Ab3-_zZ%")).toBe(false);
+    expect(isShareToken("")).toBe(false);
   });
 });

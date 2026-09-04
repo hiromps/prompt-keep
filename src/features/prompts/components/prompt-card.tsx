@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { Link2 } from "lucide-react";
 import {
   setPromptPinned,
   setPromptArchived,
@@ -10,6 +11,7 @@ import {
 } from "@/features/prompts/actions";
 import { CopyButton } from "@/features/prompts/components/copy-button";
 import { PromptEditorDialog } from "@/features/prompts/components/prompt-editor-dialog";
+import { PromptShareDialog } from "@/features/prompts/components/prompt-share-dialog";
 import type { Prompt, PromptView } from "@/features/prompts/model";
 import type { ActionError, ActionResult } from "@/lib/errors";
 
@@ -23,6 +25,7 @@ const actionButton =
 
 export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView }) {
   const [editing, setEditing] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [focusField, setFocusField] = useState<"title" | "body">("title");
   // 編集モーダルを「カードのある場所から広がる」ように見せるための開始位置
   const [cardRect, setCardRect] = useState<DOMRect | null>(null);
@@ -80,24 +83,33 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
         ) : (
           <span aria-hidden="true" />
         )}
-        {view === "active" ? (
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() =>
-              run(setPromptPinned, { id: prompt.id, value: String(!prompt.is_pinned) })
-            }
-            title={prompt.is_pinned ? "ピン留めを外す" : "ピン留めする"}
-            aria-label={prompt.is_pinned ? "ピン留めを外す" : "ピン留めする"}
-            className={`shrink-0 rounded px-1.5 text-sm disabled:opacity-40 ${
-              prompt.is_pinned
-                ? "text-[var(--foreground)]"
-                : "text-[var(--muted)] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
-            }`}
-          >
-            {prompt.is_pinned ? "★" : "☆"}
-          </button>
-        ) : null}
+        <div className="flex shrink-0 items-center gap-1">
+          {/* 共有中は常に見せる。「今どれが外に出ているか」はホバーしないと
+              分からない情報であってはならない */}
+          {prompt.share_token ? (
+            <span role="img" aria-label="共有中" title="共有中" className="text-[var(--muted)]">
+              <Link2 className="size-3.5" strokeWidth={2} aria-hidden="true" />
+            </span>
+          ) : null}
+          {view === "active" ? (
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() =>
+                run(setPromptPinned, { id: prompt.id, value: String(!prompt.is_pinned) })
+              }
+              title={prompt.is_pinned ? "ピン留めを外す" : "ピン留めする"}
+              aria-label={prompt.is_pinned ? "ピン留めを外す" : "ピン留めする"}
+              className={`shrink-0 rounded px-1.5 text-sm disabled:opacity-40 ${
+                prompt.is_pinned
+                  ? "text-[var(--foreground)]"
+                  : "text-[var(--muted)] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+              }`}
+            >
+              {prompt.is_pinned ? "★" : "☆"}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {prompt.body ? (
@@ -168,6 +180,14 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
             </button>
             <button
               type="button"
+              onClick={() => setSharing(true)}
+              disabled={isPending}
+              className={actionButton}
+            >
+              {prompt.share_token ? "共有中" : "共有"}
+            </button>
+            <button
+              type="button"
               disabled={isPending}
               onClick={() =>
                 run(setPromptArchived, {
@@ -190,6 +210,10 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
           </>
         )}
       </div>
+
+      {sharing ? (
+        <PromptShareDialog prompt={prompt} onClose={() => setSharing(false)} />
+      ) : null}
 
       {editing ? (
         <PromptEditorDialog

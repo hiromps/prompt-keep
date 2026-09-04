@@ -12,6 +12,11 @@ export type Prompt = {
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
+  /**
+   * 有効な共有リンクの token。共有していなければ null。
+   * prompts 列ではなく prompt_shares からの導出値（queries.ts で合成する）。
+   */
+  share_token: string | null;
 };
 
 /** 表示ビュー。プロンプトの3状態と1対1で対応する。 */

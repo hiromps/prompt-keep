@@ -51,6 +51,19 @@ function normalizeNewlines(value: string): string {
   return value.replace(/\r\n/g, "\n");
 }
 
+/**
+ * 共有トークン（/s/<token>）の形。randomBytes(24) の base64url = 32文字を発行するが、
+ * 長さを固定で縛らず幅を持たせている（将来バイト数を変えても既存リンクが死なないように）。
+ *
+ * DB へ問い合わせる前にここで弾く。URL の一部がそのままクエリに入る唯一の経路なので、
+ * 想定外の文字列を先に落としておく。
+ */
+const SHARE_TOKEN_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
+
+export function isShareToken(value: string): boolean {
+  return SHARE_TOKEN_PATTERN.test(value);
+}
+
 const idField = z.uuid("プロンプトIDが不正です");
 
 /** 状態変更系アクションが共通で使う id だけのスキーマ。 */

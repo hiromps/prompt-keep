@@ -35,7 +35,23 @@ async function writeToClipboard(text: string): Promise<boolean> {
   }
 }
 
-export function CopyButton({ text, className }: { text: string; className?: string }) {
+/**
+ * label は「何をコピーするか」でボタンごとに変える（本文 / 共有リンク）。
+ * 既定値は本文コピー用。カードのアクション列がこの形で並んでいる。
+ */
+export function CopyButton({
+  text,
+  className,
+  label = "コピー",
+  copiedLabel = "コピー済",
+  title = "本文をコピー",
+}: {
+  text: string;
+  className?: string;
+  label?: string;
+  copiedLabel?: string;
+  title?: string;
+}) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   const handleClick = async () => {
@@ -49,11 +65,11 @@ export function CopyButton({ text, className }: { text: string; className?: stri
       <button
         type="button"
         onClick={handleClick}
-        title="本文をコピー"
-        aria-label="本文をコピー"
+        title={title}
+        aria-label={title}
         className={className}
       >
-        {status === "copied" ? "コピー済" : "コピー"}
+        {status === "copied" ? copiedLabel : label}
       </button>
       <span aria-live="polite" className="sr-only">
         {status === "copied" ? "コピーしました" : status === "failed" ? "コピーできませんでした" : ""}
