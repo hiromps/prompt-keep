@@ -58,37 +58,64 @@ function TagItems({
   tags,
   activeTag,
   nested,
-  onNavigate,
+  onSelect,
 }: {
   tags: TagCount[];
   activeTag?: string;
   nested: boolean;
-  onNavigate?: () => void;
+  /** 項目を選んだとき（ドロワーを閉じる用） */
+  onSelect?: () => void;
 }) {
+  const pathname = usePathname();
+
+  /**
+   * 通常ビューの中でのタグ切り替えは、URL を書き換えるだけで済む。
+   * 全件は prompts/layout.tsx が持っていて、絞り込みは PromptsWorkspace が
+   * useSearchParams から行うため。pushState は Next.js の router と同期して
+   * useSearchParams / usePathname を更新するので、サーバー往復は一切起きない。
+   * アーカイブ / ゴミ箱からは通常の遷移に任せる（page セグメントだけ取りに行く）。
+   * href はそのまま残すので、新しいタブで開く・修飾キー付きクリックは普通のリンクとして動く。
+   */
+  const switchTag = (href: string) => (event: { preventDefault: () => void }) => {
+    if (pathname !== "/prompts") return;
+    event.preventDefault();
+    window.history.pushState(null, "", href);
+    onSelect?.();
+  };
+
   return (
     <>
       {activeTag ? (
         <li>
-          <Link href="/prompts" onClick={onNavigate} className={tagRowClass(false, nested)}>
+          <Link
+            href="/prompts"
+            onNavigate={switchTag("/prompts")}
+            onClick={onSelect}
+            className={tagRowClass(false, nested)}
+          >
             <Tag className="size-4 shrink-0" aria-hidden="true" />
             <span className="flex-1 truncate">すべて</span>
           </Link>
         </li>
       ) : null}
-      {tags.map(({ tag, count }) => (
-        <li key={tag}>
-          <Link
-            href={`/prompts?tag=${encodeURIComponent(tag)}`}
-            onClick={onNavigate}
-            aria-current={tag === activeTag ? "page" : undefined}
-            className={tagRowClass(tag === activeTag, nested)}
-          >
-            <Tag className="size-4 shrink-0" aria-hidden="true" />
-            <span className="flex-1 truncate">{tag}</span>
-            <span className="text-xs text-[var(--muted)]">{count}</span>
-          </Link>
-        </li>
-      ))}
+      {tags.map(({ tag, count }) => {
+        const href = `/prompts?tag=${encodeURIComponent(tag)}`;
+        return (
+          <li key={tag}>
+            <Link
+              href={href}
+              onNavigate={switchTag(href)}
+              onClick={onSelect}
+              aria-current={tag === activeTag ? "page" : undefined}
+              className={tagRowClass(tag === activeTag, nested)}
+            >
+              <Tag className="size-4 shrink-0" aria-hidden="true" />
+              <span className="flex-1 truncate">{tag}</span>
+              <span className="text-xs text-[var(--muted)]">{count}</span>
+            </Link>
+          </li>
+        );
+      })}
     </>
   );
 }
@@ -114,6 +141,7 @@ function DesktopRail({ view, tags, activeTag }: Props) {
             <li key={href} className={!railExpanded && ownsTags ? "group/nav relative" : undefined}>
               <Link
                 href={href}
+                prefetch={v === view ? false : true}
                 aria-current={v === view ? "page" : undefined}
                 title={railExpanded ? undefined : label}
                 className={navRowClass(v === view, railExpanded)}
@@ -210,6 +238,7 @@ function MobileDrawer({ view, tags, activeTag }: Props) {
             <li key={href}>
               <Link
                 href={href}
+                prefetch={v === view ? false : true}
                 onClick={close}
                 tabIndex={drawerOpen ? undefined : -1}
                 aria-current={v === view ? "page" : undefined}
@@ -223,7 +252,7 @@ function MobileDrawer({ view, tags, activeTag }: Props) {
                   <p className="px-4 py-1 text-xs font-medium text-[var(--muted)]">タグ</p>
                   <ul>
                     {/* 幅の狭いドロワーでは字下げしない。タグ名の前が空くと読みにくい */}
-                    <TagItems tags={tags} activeTag={activeTag} nested={false} onNavigate={close} />
+                    <TagItems tags={tags} activeTag={activeTag} nested={false} onSelect={close} />
                   </ul>
                 </div>
               ) : null}

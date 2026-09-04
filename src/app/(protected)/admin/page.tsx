@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { projectConfig } from "@config";
-import { requirePageAdmin } from "@/auth/guards";
+import { requireSessionForPage, resolvePageAdmin } from "@/auth/guards";
 import { listAllProfiles } from "@/features/admin/queries";
 
 export const metadata = { title: "管理" };
@@ -8,15 +8,16 @@ export const metadata = { title: "管理" };
 /**
  * 管理者専用ページ（サンプルB: 管理者権限の簡易サンプル）。
  * - modules.admin が無効ならルート自体を 404 にする
- * - requirePageAdmin が DB のロール・状態を再確認する（JWT のロールだけを信用しない）。
+ * - resolvePageAdmin が DB のロール・状態を再確認する（JWT のロールだけを信用しない）。
  *   未ログインは /signin?callbackUrl=/admin、権限なしは /unauthorized へ
  */
 export default async function AdminPage() {
   if (!projectConfig.modules.admin) notFound();
 
-  await requirePageAdmin("/admin");
-
-  const profiles = await listAllProfiles();
+  const session = await requireSessionForPage("/admin");
+  // 権限確認と一覧取得は互いに依存しないので並べて待つ。一覧はサーバー内に留まり、
+  // 権限確認が通ってから初めて描画されるので、管理者以外に渡ることはない
+  const [, profiles] = await Promise.all([resolvePageAdmin(session), listAllProfiles()]);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6">
