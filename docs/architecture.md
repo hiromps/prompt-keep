@@ -37,5 +37,14 @@ Browser ──(HTML/Server Action)──> Next.js サーバー ──(service ro
 1. **読み取り**: Server Component → `requireUser()` → `features/<x>/queries.ts`（admin client + 所有者スコープ）
 2. **書き込み**: Client form → `features/<x>/actions.ts`（`createAuthAction` = auth + Zod + 共通エラー）→ `revalidatePath`
 
+### prompts の例外: 盤面は Client Component
+`/prompts` 系の3ページは Server Component のまま所有者の全行を1クエリで取得し、
+`PromptsShell`（Server）→ `PromptBoard`（Client）へ渡す。検索は読み込み済みの行に対する
+クライアント側フィルタで、キー入力ごとのサーバー往復を避けている。
+そのため盤面より内側（検索ボックス・カード・クイック入力）は `"use client"` になる。
+
+ビューの絞り込みで DB を叩き分けないのは、サイドバーのタグ件数とクライアント検索が
+常に全件を前提にできるようにするため（ビューごとに絞ると、アーカイブ画面でタグ件数がずれる）。
+
 ## プロジェクト固有の構成
 （外部サービス・キュー・cron 等を追加したらここに記載）

@@ -23,7 +23,7 @@
 1. Google Cloud Console → OAuth クライアント作成（リダイレクト URI: `http://localhost:3000/api/auth/callback/google`）
 2. `.env.local` の `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` を設定
 3. `pnpm db:start` → `pnpm dev` → http://localhost:3000 → 「Googleで始める」
-4. 確認: /profile に表示名が出る・`public.profiles` に行がある・/dashboard でノート CRUD・別 Google アカウントで他人のノートが見えない
+4. 確認: /profile に表示名が出る・`public.profiles` に行がある・/prompts でプロンプトの作成/編集/コピー/タグ絞り込み/検索/ピン/アーカイブ/ゴミ箱が動く・別 Google アカウントで他人のプロンプトが見えない
 5. 管理者確認: `UPDATE public.profiles SET role='admin' WHERE ...` → 再ログイン → /admin が表示される。一般ユーザーは /unauthorized へ
 
 ## 2026-07-12 不具合修正（セキュリティ/品質レビュー反映）

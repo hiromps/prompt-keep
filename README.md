@@ -1,6 +1,9 @@
-# nextjs-mvp-starter
+# prompt-keep
 
-個人開発者が新規 MVP を高速かつ安全に開始するための再利用可能な Next.js スターター。
+よく使う AI プロンプトを Google Keep 風のカードで貯めて、タグと検索ですぐ見つけ、
+ワンクリックでコピーするための個人用プロンプト管理。
+
+[hiromps/nextjs-mvp-starter](https://github.com/hiromps/nextjs-mvp-starter) を土台にしている。
 
 - **Next.js App Router**（TypeScript strict / Tailwind CSS v4 / pnpm）
 - **認証: Auth.js（NextAuth v5）+ Google OAuth**（Supabase Auth は不使用）
@@ -49,6 +52,9 @@ pnpm db:start
 
 出力される `ANON_KEY` と `SERVICE_ROLE_KEY` を次の手順で使う。
 
+> **ポートは 543xx ではなく 544xx を使う。** 他の Supabase プロジェクトと同時に立ち上げても
+> 衝突しないよう `supabase/config.toml` で API 54421 / DB 54422 / Studio 54423 へずらしている。
+
 ### 3. 環境変数
 
 ```bash
@@ -59,7 +65,7 @@ cp .env.example .env.local
 
 | 変数 | 値 |
 |---|---|
-| `SUPABASE_URL` | `http://127.0.0.1:54321` |
+| `SUPABASE_URL` | `http://127.0.0.1:54421` |
 | `SUPABASE_ANON_KEY` | `pnpm db:start` の出力 |
 | `SUPABASE_SERVICE_ROLE_KEY` | `pnpm db:start` の出力（**クライアントへ渡さない**） |
 | `AUTH_SECRET` | `openssl rand -base64 32` で生成 |
@@ -77,12 +83,12 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-http://localhost:3000 → 「Googleで始める」でログイン → /profile と /dashboard が動けばセットアップ完了。
+http://localhost:3000 → 「Googleで始める」でログイン → /profile と /prompts が動けばセットアップ完了。
 
 ### 6. 管理者にする（任意）
 
 ```bash
-docker exec supabase_db_nextjs-mvp-starter psql -U postgres \
+docker exec supabase_db_prompt-keep psql -U postgres \
   -c "UPDATE public.profiles SET role='admin' WHERE display_name='<あなたの表示名>';"
 ```
 
@@ -105,13 +111,20 @@ docker exec supabase_db_nextjs-mvp-starter psql -U postgres \
 3. Vercel にリポジトリを接続し、`.env.example` の6変数を本番値で設定
 4. Google OAuth に本番リダイレクト URI（`https://<domain>/api/auth/callback/google`）を追加
 
-## プロジェクトを開始するときにやること
+## 主な画面
 
-1. `project.config.ts` の `meta` を書き換える
-2. `docs/product-brief.md` と `docs/mvp-scope.md` を記入する
-3. LP（`src/app/page.tsx`）を差し替える
-4. サンプル機能が不要なら削除: notes（`src/features/notes`, `src/app/(protected)/dashboard`, migration 0003, `src/schemas/note.ts`）/ admin（`modules.admin: false` + `src/features/admin`, `src/app/(protected)/admin`）
-5. `docs/implementation-plan.md` の Phase 0 チェックリストを消化する
+| パス | 内容 |
+|---|---|
+| `/prompts` | 通常ビュー。クイック入力・検索・タグ絞り込み（`?tag=`） |
+| `/prompts/archive` | アーカイブしたプロンプト |
+| `/prompts/trash` | ゴミ箱（復元 / 完全削除）。自動削除はしない |
+| `/profile` | 表示名の変更 |
+| `/admin` | スターター由来のロールゲート検証サンプル |
+
+設計判断は [`docs/decisions/0005-prompt-data-model.md`](docs/decisions/0005-prompt-data-model.md)
+（タグ配列と3状態モデル）と
+[`docs/decisions/0006-service-role-grants.md`](docs/decisions/0006-service-role-grants.md)
+（public への明示 GRANT）を参照。
 
 ## ディレクトリ構成
 

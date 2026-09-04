@@ -32,7 +32,7 @@ const user = await requireUser();
 const rows = await listNotesByOwner(user.id); // 必ず所有者スコープ
 
 // 書き込み（Server Action）
-export const createNote = createAuthAction("notes.create", createNoteSchema,
+export const createPrompt = createAuthAction("prompts.create", createPromptSchema,
   async (input, { user }) => { /* .eq("owner_id", user.id) を忘れない */ });
 
 // 管理者操作: requireAdmin() は JWT でなく DB のロールを再確認する

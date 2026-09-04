@@ -12,7 +12,7 @@
 - [ ] `project.config.ts` の meta を書き換え
 - [ ] docs/product-brief.md, mvp-scope.md を記入
 - [ ] LP（`src/app/page.tsx`）の文言をプロダクトに合わせる
-- [ ] 不要なサンプル（notes / admin）を削除 or 置換
+- [x] notes サンプルを prompts へ置き換え（admin は検証サンプルとして残置）
 - [ ] Google OAuth クレデンシャル設定・ログイン動作確認
 
 ### Phase 1: コアデータモデル

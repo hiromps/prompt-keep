@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("公開ページ", () => {
   test("LPが表示され、ログイン導線がある", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "MVPを、今日はじめる" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "プロンプトを、探さない" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Googleで始める" })).toBeVisible();
   });
 
