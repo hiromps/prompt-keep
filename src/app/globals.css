@@ -41,6 +41,26 @@ body {
 }
 
 /*
+ * iOS Safari は font-size が 16px 未満の入力欄にフォーカスすると、読ませるために
+ * ページ全体を勝手に拡大する（そして自分では戻さない）。カードをタップして編集
+ * モーダルを開くたびに起きるため、狭い画面では入力欄を 16px より小さくしない。
+ *
+ * viewport に maximum-scale=1 を足せば拡大自体を止められるが、それはピンチ操作での
+ * 拡大も奪うので採らない（文字を大きくして読む人が困る）。
+ *
+ * この規則はレイヤーの外に置く。Tailwind のユーティリティ（text-sm など）は
+ * @layer utilities の中にあり、レイヤー無しの宣言が常にそれより優先されるため、
+ * クラス側を書き換えて回らずに済む。@layer で囲まないこと。
+ */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/*
  * 編集モーダルの背景。<dialog>.showModal() の ::backdrop を暗転させる。
  * 開くときはフェードイン、閉じるときは（JS が付ける is-closing で）逆再生する。
  * カード本体のアニメーションは Web Animations API 側で行っている
