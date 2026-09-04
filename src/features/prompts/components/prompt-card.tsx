@@ -29,6 +29,7 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
   const [body, setBody] = useState(prompt.body);
   const [tags, setTags] = useState(prompt.tags);
   const [error, setError] = useState<ActionError | null>(null);
+  const [focusField, setFocusField] = useState<"title" | "body">("title");
   const [isPending, startTransition] = useTransition();
 
   /**
@@ -50,14 +51,22 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
     });
   };
 
-  const openEdit = () => {
+  /**
+   * 編集を開く。クリックされた場所（タイトル / 本文）へそのままフォーカスを移すので、
+   * カードの文字をクリックした流れで書き始められる。
+   */
+  const openEdit = (field: "title" | "body" = "title") => {
     // 前回の編集内容とエラーを持ち越さない
     setTitle(prompt.title);
     setBody(prompt.body);
     setTags(prompt.tags);
     setError(null);
+    setFocusField(field);
     setEditing(true);
   };
+
+  // ゴミ箱の中身は編集させない（復元 / 完全削除のみ）
+  const canEdit = view !== "trashed";
 
   if (editing) {
     return (
@@ -68,6 +77,7 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
           placeholder="タイトル"
           aria-label="タイトル"
           maxLength={100}
+          autoFocus={focusField === "title"}
           className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-[var(--muted)]"
         />
         <FieldError errors={error?.fieldErrors?.title} />
@@ -77,6 +87,7 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
           placeholder="プロンプト本文"
           aria-label="プロンプト本文"
           rows={8}
+          autoFocus={focusField === "body"}
           className="mt-2 w-full resize-y bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
         />
         <FieldError errors={error?.fieldErrors?.body} />
@@ -122,7 +133,14 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
         {/* タイトルは任意。無いときは見出しを出さず本文だけ見せる（Keep と同じ）。
             本文1行目を見出しに流用すると、直下の本文と重複して読みにくい。 */}
         {prompt.title ? (
-          <h3 className="text-sm font-medium break-words">{prompt.title}</h3>
+          // クリックでそのまま編集に入る。キーボード操作の導線は下の「編集」ボタンが担うので、
+          // ここに role/tabIndex は付けない（タブ停止が二重になるのを避ける）。
+          <h3
+            className={`text-sm font-medium break-words ${canEdit ? "cursor-pointer" : ""}`}
+            onClick={canEdit ? () => openEdit("title") : undefined}
+          >
+            {prompt.title}
+          </h3>
         ) : (
           <span aria-hidden="true" />
         )}
@@ -147,7 +165,12 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
       </div>
 
       {prompt.body ? (
-        <p className="mt-1.5 line-clamp-[12] text-sm whitespace-pre-wrap break-words text-[var(--muted-strong)]">
+        <p
+          className={`mt-1.5 line-clamp-[12] text-sm whitespace-pre-wrap break-words text-[var(--muted-strong)] ${
+            canEdit ? "cursor-pointer" : ""
+          }`}
+          onClick={canEdit ? () => openEdit("body") : undefined}
+        >
           {prompt.body}
         </p>
       ) : null}
@@ -199,7 +222,12 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
         ) : (
           <>
             <CopyButton text={prompt.body} className={actionButton} />
-            <button type="button" onClick={openEdit} disabled={isPending} className={actionButton}>
+            <button
+              type="button"
+              onClick={() => openEdit("title")}
+              disabled={isPending}
+              className={actionButton}
+            >
               編集
             </button>
             <button
