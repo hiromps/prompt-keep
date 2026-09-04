@@ -67,9 +67,10 @@ Auth.js ユーザー1人につき1行。初回サインイン時に自動作成�
 3. `updated_at` トリガー（`public.set_updated_at()` を再利用）
 4. `pnpm db:types` で型再生成 → queries は必要カラムを明示 select
 
-`public` への GRANT は `20260711000004_service_role_grants.sql` の
-`ALTER DEFAULT PRIVILEGES` で自動的に効くため、テーブルごとに書く必要はない
-（[0006](decisions/0006-service-role-grants.md)）。
+`public` への GRANT / REVOKE は `20260711000004_service_role_grants.sql` と
+`20260904000001_revoke_anon_grants.sql` の `ALTER DEFAULT PRIVILEGES` で自動的に効くため、
+テーブルごとに書く必要はない（service_role には付与、anon / authenticated からは剥奪。
+[0006](decisions/0006-service-role-grants.md)）。
 
 ## プロジェクト固有テーブル
 現在は `prompts` のみ。
