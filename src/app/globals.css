@@ -2,10 +2,14 @@
 
 /*
  * Google Keep 風の配色トークン。
- * ライト/ダークの両方をここで定義し、コンポーネント側は var(--…) だけを参照する
- * （個々のコンポーネントに色を直書きすると、片方のテーマだけ壊れて気づけない）。
+ * このアプリは常にライトテーマで表示する（OS のダークモード設定には追従しない）。
+ * コンポーネント側は var(--…) だけを参照すること
+ * （色を直書きすると、後でテーマを足したときに一部だけ取り残される）。
  */
 :root {
+  /* ネイティブUI（スクロールバー・フォーム部品・検索欄の×ボタン）も
+     ライト前提で描画させる。これが無いと OS がダークのとき部品だけ黒くなる。 */
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #202124;
   /* 本文など、地の文よりやや薄いテキスト */
@@ -19,20 +23,6 @@
   /* サイドバーの選択中 */
   --chip-active: #feefc3;
   --accent: #fbbc04;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #202124;
-    --foreground: #e8eaed;
-    --muted-strong: #bdc1c6;
-    --muted: #9aa0a6;
-    --card: #2d2e30;
-    --border: #5f6368;
-    --chip: #3c4043;
-    --chip-active: #41331c;
-    --accent: #fbbc04;
-  }
 }
 
 @theme inline {
