@@ -45,9 +45,10 @@ async function postgrest(
 
 test.beforeAll(async () => {
   await postgrest("POST", "next_auth", "users", "", { id: userId, email: userEmail, name: "E2E" });
+  // PostgREST の一括 INSERT は全行のキーが揃っている必要がある（PGRST102）ので archived_at を全行に置く
   await postgrest("POST", "public", "prompts", "", [
-    { owner_id: userId, title: "通常のプロンプト", body: "本文A", tags: ["e2e"] },
-    { owner_id: userId, title: "タグ無しのプロンプト", body: "本文B", tags: [] },
+    { owner_id: userId, title: "通常のプロンプト", body: "本文A", tags: ["e2e"], archived_at: null },
+    { owner_id: userId, title: "タグ無しのプロンプト", body: "本文B", tags: [], archived_at: null },
     {
       owner_id: userId,
       title: "アーカイブ済み",
