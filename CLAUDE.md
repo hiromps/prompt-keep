@@ -1,4 +1,4 @@
-# nextjs-mvp-starter — AI 作業ルール
+# prompt-keep — AI 作業ルール
 
 @AGENTS.md
 
@@ -21,3 +21,5 @@
 - 設計判断の理由: `docs/decisions/`
 - 現在の進捗: `docs/implementation-status.md`
 - 構成フラグ: `project.config.ts`
+- プロンプトのデータモデル（タグ配列・通常/アーカイブ/ゴミ箱の3状態）: `docs/decisions/0005-prompt-data-model.md` と `docs/data-model.md`
+- `public` への service_role 明示 GRANT（これが無いとログイン時点で 42501 になる）: `docs/decisions/0006-service-role-grants.md`
