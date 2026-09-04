@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { test, expect, type Page } from "@playwright/test";
 import { encode } from "@auth/core/jwt";
-import { createClient } from "@supabase/supabase-js";
 import { WEB_SERVER_ENV } from "../../playwright.config";
 
 /**
@@ -10,7 +9,9 @@ import { WEB_SERVER_ENV } from "../../playwright.config";
  * - セッション Cookie は @auth/core/jwt の encode で偽造する（uid が要る。
  *   docs/implementation-status.md「認証が要る画面を Playwright で確かめるとき」参照）
  * - prompts.owner_id は next_auth.users を参照するため、service role で行を仕込む。
- *   CI では supabase start した実インスタンスに対して走る
+ *   CI では supabase start した実インスタンスに対して走る。supabase-js ではなく
+ *   PostgREST を fetch で直接叩くのは、supabase-js が Realtime の初期化で Node 22 の
+ *   ネイティブ WebSocket を要求し、CI の Node 20 で落ちるため
  * - プリフェッチは本番ビルドでしか動かないので、ここで見るのは
  *   「スピナーが出ない」「レイアウト（全件取得）を取り直さない」「タグ切替は通信ゼロ」の3点
  */
@@ -19,37 +20,47 @@ const SESSION_COOKIE = "authjs.session-token";
 const userId = randomUUID();
 const userEmail = `e2e-${userId}@example.com`;
 
-const adminDb = (schema: "public" | "next_auth") =>
-  createClient(WEB_SERVER_ENV.SUPABASE_URL, WEB_SERVER_ENV.SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    db: { schema },
+/** service role で PostgREST を直接叩く（応答本文は使わない）。 */
+async function postgrest(
+  method: "POST" | "DELETE",
+  schema: "public" | "next_auth",
+  table: string,
+  query = "",
+  body?: unknown,
+) {
+  const key = WEB_SERVER_ENV.SUPABASE_SERVICE_ROLE_KEY;
+  const res = await fetch(`${WEB_SERVER_ENV.SUPABASE_URL}/rest/v1/${table}${query}`, {
+    method,
+    headers: {
+      apikey: key,
+      authorization: `Bearer ${key}`,
+      "content-type": "application/json",
+      "content-profile": schema,
+      prefer: "return=minimal",
+    },
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
+  if (!res.ok) throw new Error(`${method} ${schema}.${table}: ${res.status} ${await res.text()}`);
+}
 
 test.beforeAll(async () => {
-  const { error: userError } = await adminDb("next_auth")
-    .from("users")
-    .insert({ id: userId, email: userEmail, name: "E2E" });
-  expect(userError, userError?.message).toBeNull();
-
-  const { error: promptError } = await adminDb("public")
-    .from("prompts")
-    .insert([
-      { owner_id: userId, title: "通常のプロンプト", body: "本文A", tags: ["e2e"] },
-      { owner_id: userId, title: "タグ無しのプロンプト", body: "本文B", tags: [] },
-      {
-        owner_id: userId,
-        title: "アーカイブ済み",
-        body: "本文C",
-        tags: [],
-        archived_at: new Date().toISOString(),
-      },
-    ]);
-  expect(promptError, promptError?.message).toBeNull();
+  await postgrest("POST", "next_auth", "users", "", { id: userId, email: userEmail, name: "E2E" });
+  await postgrest("POST", "public", "prompts", "", [
+    { owner_id: userId, title: "通常のプロンプト", body: "本文A", tags: ["e2e"] },
+    { owner_id: userId, title: "タグ無しのプロンプト", body: "本文B", tags: [] },
+    {
+      owner_id: userId,
+      title: "アーカイブ済み",
+      body: "本文C",
+      tags: [],
+      archived_at: new Date().toISOString(),
+    },
+  ]);
 });
 
 test.afterAll(async () => {
   // prompts は ON DELETE CASCADE で消える
-  await adminDb("next_auth").from("users").delete().eq("id", userId);
+  await postgrest("DELETE", "next_auth", "users", `?id=eq.${userId}`);
 });
 
 test.beforeEach(async ({ context }) => {
