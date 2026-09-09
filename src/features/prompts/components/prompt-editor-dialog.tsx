@@ -8,6 +8,11 @@ import type { Prompt } from "@/features/prompts/model";
 import type { ActionError } from "@/lib/errors";
 
 const DURATION = 200;
+/** 本文欄の最低の高さ。短いプロンプトでもフォームとして成立する大きさ */
+const MIN_BODY_HEIGHT = 160;
+/** 本文が長いときに横幅を広げる目安。これを超えたら 1 行あたりの文字数を増やす */
+const WIDE_BODY_LENGTH = 400;
+const WIDE_BODY_LINES = 12;
 /** 狭い画面の閉じアニメーション。フェードを見せるぶん少し長く取る（globals.css と揃える） */
 const NARROW_CLOSE_DURATION = 260;
 
@@ -55,6 +60,7 @@ export function PromptEditorDialog({
   onClose: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const closing = useRef(false);
@@ -64,10 +70,30 @@ export function PromptEditorDialog({
   const [error, setError] = useState<ActionError | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  // 長い本文は 1 行が短いと読みづらいので、開くときの横幅も広げる。
+  // 開いた後の入力では変えない（幅が変わると行の折り返しごと動いて読みにくい）
+  const wide =
+    prompt.body.length > WIDE_BODY_LENGTH ||
+    prompt.body.split("\n").length > WIDE_BODY_LINES;
+
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
     dialog.showModal();
+
+    // 本文の量に合わせて開いたときの高さを決める。showModal() の前は
+    // display:none で scrollHeight が 0 になるので、必ずこの順で測る。
+    // 高さは本文欄ではなく箱（panel）に入れる。本文欄を min-height で伸ばすと
+    // タグが折り返したときに箱からはみ出すが、箱の高さを決めておけば
+    // はみ出したぶんは flex が本文欄から削ってくれる。
+    // 上限は CSS 側の 85vh。ここは開いた直後の一度きりで、入力には追従させない。
+    const bodyEl = bodyRef.current;
+    const panel = panelRef.current;
+    if (bodyEl && panel) {
+      const fit = Math.max(bodyEl.scrollHeight, MIN_BODY_HEIGHT);
+      const chrome = panel.getBoundingClientRect().height - bodyEl.getBoundingClientRect().height;
+      panel.style.setProperty("--panel-height", `${Math.round(chrome + fit)}px`);
+    }
 
     // showModal() は React の autoFocus を上書きして先頭の入力欄へフォーカスを移す。
     // クリックされた欄へ当て直し、本文はキャレットを末尾に置く（追記しやすいように）。
@@ -164,9 +190,14 @@ export function PromptEditorDialog({
         if (e.target === dialogRef.current) requestClose();
       }}
       aria-label="プロンプトを編集"
-      className="m-auto w-[min(92vw,42rem)] rounded-xl border border-[var(--border)] bg-[var(--card)] p-0 text-[var(--foreground)] shadow-2xl backdrop:bg-black/50"
+      className={`m-auto bg-[var(--card)] p-0 text-[var(--foreground)] shadow-2xl backdrop:bg-black/50 max-md:h-[100dvh] max-md:max-h-none max-md:w-full max-md:max-w-none md:rounded-xl md:border md:border-[var(--border)] ${
+        wide ? "md:w-[min(92vw,56rem)]" : "md:w-[min(92vw,42rem)]"
+      }`}
     >
-      <div className="flex max-h-[85vh] flex-col p-4">
+      <div
+        ref={panelRef}
+        className="flex flex-col p-4 max-md:h-full max-md:pb-[max(1rem,env(safe-area-inset-bottom))] max-md:pt-[max(1rem,env(safe-area-inset-top))] md:h-[var(--panel-height)] md:max-h-[85vh]"
+      >
         <input
           ref={titleRef}
           value={title}
@@ -183,7 +214,7 @@ export function PromptEditorDialog({
           onChange={(e) => setBody(e.target.value)}
           placeholder="プロンプト本文"
           aria-label="プロンプト本文"
-          className="mt-3 min-h-40 flex-1 resize-none overflow-y-auto bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
+          className="mt-3 min-h-0 flex-1 resize-none overflow-y-auto bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
         />
         <FieldError errors={error?.fieldErrors?.body} />
         <div className="mt-3">
