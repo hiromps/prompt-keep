@@ -107,3 +107,21 @@
     transparent 100%
   );
 }
+
+/*
+ * 見出しのサイズは画面幅ではなく「見出しが入る箱」の幅から決める。
+ * 1 行目「いいプロンプトは、」は全角 9 文字。日本語フォントは 1 文字 ≒ 1em なので、
+ * (箱の内側幅) / 9.4 を上限にすれば途中で折れない（行自体は nowrap で固定）。
+ * vw 基準だと、余白やポスター幅の変更でずれて実機で折れる。
+ */
+.lp-poster,
+.lp-hero-copy {
+  container-type: inline-size;
+}
+.lp-poster-title {
+  /* 48px は左右の padding（px-6）ぶん */
+  font-size: clamp(1.4rem, calc((100cqi - 48px) / 9.4), 2.75rem);
+}
+.lp-hero-title {
+  font-size: clamp(2rem, calc(100cqi / 9.4), 4rem);
+}

@@ -21,8 +21,8 @@ function Title({ className }: { className: string }) {
   const [before, after] = second.split(hero.titleAccent);
   return (
     <h1 className={className}>
-      <span className="block">{first}</span>
-      <span className="block">
+      <span className="block whitespace-nowrap">{first}</span>
+      <span className="block whitespace-nowrap">
         {before}
         <span className="text-[var(--lp-accent-text)]">{hero.titleAccent}</span>
         {after}
@@ -85,12 +85,12 @@ export function HeroPoster() {
   return (
     <section className="grid items-center gap-6 md:grid-cols-[1fr_minmax(300px,380px)] md:gap-10 lg:gap-16">
       {/* md 以上の左カラム。狭い画面ではポスター内の文字が代わりをする */}
-      <div className="hidden md:block">
+      <div className="lp-hero-copy hidden md:block">
         <p className="inline-flex items-center gap-2 rounded-full bg-[var(--lp-soft-blue)] px-3 py-1 text-xs font-medium">
           <span aria-hidden="true" className="size-1.5 rounded-full bg-[var(--lp-periwinkle)]" />
           {hero.eyebrow}
         </p>
-        <Title className="mt-5 text-[clamp(2.5rem,4.6vw,4rem)] leading-[1.12] font-bold tracking-[-0.02em]" />
+        <Title className="lp-hero-title mt-5 leading-[1.12] font-bold tracking-[-0.02em]" />
         <Lead className="mt-6 text-base leading-relaxed text-[var(--lp-muted)] lg:text-lg" />
         <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/signin" className={`${pillNavy} px-6 py-3 text-base`}>
@@ -113,7 +113,7 @@ export function HeroPoster() {
 
         {/* 見出し（狭い画面のみ） */}
         <div className="absolute inset-x-0 top-[13%] px-6 md:hidden">
-          <Title className="text-[clamp(2rem,9.5vw,2.75rem)] leading-[1.15] font-bold tracking-[-0.02em]" />
+          <Title className="lp-poster-title leading-[1.15] font-bold tracking-[-0.02em]" />
         </div>
 
         {/* 3D イラスト。狭い画面では見出しの下、md 以上では中央よりやや上 */}
