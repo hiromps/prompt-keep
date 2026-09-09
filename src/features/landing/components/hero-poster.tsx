@@ -96,7 +96,7 @@ export function HeroPoster() {
           <Link href="/signin" className={`${pillNavy} px-6 py-3 text-base`}>
             {hero.primaryCta}
           </Link>
-          <Link href="/prompts" className={`${pillOutline} px-6 py-3 text-base`}>
+          <Link href="/ranking" className={`${pillOutline} px-6 py-3 text-base`}>
             {hero.secondaryCta}
           </Link>
         </div>
@@ -151,7 +151,7 @@ export function HeroPoster() {
               {hero.primaryCta}
             </Link>
             <Link
-              href="/prompts"
+              href="/ranking"
               className={`lp-navy-muted text-sm underline underline-offset-4 ${focusRing}`}
             >
               {hero.secondaryCta}
