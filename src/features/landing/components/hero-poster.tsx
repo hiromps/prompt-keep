@@ -116,9 +116,9 @@ export function HeroPoster() {
           <Title className="lp-poster-title leading-[1.15] font-bold tracking-[-0.02em]" />
         </div>
 
-        {/* 3D イラスト。狭い画面では見出しの下、md 以上では中央よりやや上 */}
-        <div className="absolute inset-x-0 top-[34%] flex justify-center md:top-[16%]">
-          <div className="w-[72%] translate-x-[6%] min-[360px]:w-[80%] md:w-[86%] md:translate-x-0">
+        {/* 3D イラスト。狭い画面では X 投稿モックの下に右寄せで、md 以上では中央よりやや上 */}
+        <div className="absolute inset-x-0 top-[40%] flex justify-center md:top-[16%]">
+          <div className="w-[72%] translate-x-[10%] min-[360px]:w-[78%] md:w-[86%] md:translate-x-0">
             <Image
               src={heroShare}
               alt={hero.imageAlt}
@@ -132,14 +132,14 @@ export function HeroPoster() {
         {/* 「コピーしました」トースト。受け取る側の体験を 1 つ見せる */}
         <div
           aria-hidden="true"
-          className="absolute top-[36%] right-5 inline-flex items-center gap-1.5 rounded-full bg-[var(--lp-surface)] px-3 py-1.5 text-[11px] font-medium text-[var(--lp-ink)] shadow-lg md:top-[18%]"
+          className="absolute top-[42%] right-5 inline-flex items-center gap-1.5 rounded-full bg-[var(--lp-surface)] px-3 py-1.5 text-[11px] font-medium text-[var(--lp-ink)] shadow-lg md:top-[18%]"
         >
           <Check size={12} className="text-[var(--lp-green)]" />
           {hero.mockToast}
         </div>
 
-        {/* X 投稿のモック。イラストの左下に重ねる。320px 級ではイラストを隠してしまうので出さない */}
-        <div className="absolute bottom-[27%] left-4 hidden min-[360px]:block sm:left-5 md:bottom-[22%]">
+        {/* X 投稿のモック。狭い画面では見出しのすぐ下、md 以上ではイラストの左下。320px 級では出さない */}
+        <div className="absolute top-[31%] left-4 hidden min-[360px]:block sm:left-5 md:top-auto md:bottom-[22%]">
           <MockPost />
         </div>
 
