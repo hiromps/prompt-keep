@@ -101,3 +101,29 @@ dialog.is-closing::backdrop {
     animation: none;
   }
 }
+
+/*
+ * コピー結果のトースト（copy-button.tsx）。画面中央に出して 1.8 秒で消える。
+ * 出るときだけ動かす。消えるのは React が要素ごと外すので、
+ * 退場アニメーションは持たせていない。
+ */
+@keyframes toast-pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.toast-pop {
+  animation: toast-pop 150ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-pop {
+    animation: none;
+  }
+}

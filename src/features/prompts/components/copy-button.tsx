@@ -79,6 +79,24 @@ export function CopyButton({
       <span aria-live="polite" className="sr-only">
         {status === "copied" ? "コピーしました" : status === "failed" ? "コピーできませんでした" : ""}
       </span>
+      {/*
+        結果を画面中央に出す。ボタン自身のラベルが変わるだけだと、
+        カードのアイコンボタンでは指の下に隠れて気づけない。
+        読み上げは上の live region が担うので、こちらは aria-hidden にする
+        （同じ文言を二度読ませない）。
+        <dialog> の中から使われることもあるが、fixed は top layer の中でも
+        ビューポート基準に効くので、共有ダイアログからでも中央に出る。
+      */}
+      {status === "idle" ? null : (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-50 grid place-items-center"
+        >
+          <p className="toast-pop rounded-lg bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--card)] shadow-lg">
+            {status === "copied" ? "コピーに成功しました" : "コピーできませんでした"}
+          </p>
+        </div>
+      )}
     </>
   );
 }
