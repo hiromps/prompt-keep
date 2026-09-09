@@ -1,5 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Bookmark } from "lucide-react";
+import heroShare from "../../../../public/images/hero-share.png";
 import { hero } from "@/features/landing/content";
 import { focusRing, pillWhite } from "@/features/landing/classes";
 import { IconBadge } from "@/features/landing/components/icon-badge";
@@ -7,7 +9,10 @@ import { LpCard } from "@/features/landing/components/lp-card";
 
 /**
  * 残高カード相当。ネイビーのグラデーションに、右上の淡い「ホールド」領域、
- * 左のマーク、右下の白いピル（主 CTA）を置く。
+ * 左のマーク、右側の 3D イラスト、白いピル（主 CTA）を置く。
+ *
+ * イラストは static import にして、next/image に実寸を渡す（レイアウトシフトを
+ * 防ぐ）。元は 1024px の透過 PNG だが、配信時は sizes に合わせて縮小・WebP 化される。
  */
 export function HeroCtaCard() {
   return (
@@ -17,13 +22,18 @@ export function HeroCtaCard() {
         <p className="lp-navy-muted text-right text-xs leading-snug">{hero.cardEyebrow}</p>
       </div>
 
-      <div className="relative flex flex-1 gap-4 pt-[52px] pb-14 sm:pb-2">
-        <div className="flex w-[76px] shrink-0 items-start">
+      <div className="relative flex flex-1 items-center gap-4 pt-[52px] pb-2">
+        {/*
+          マークと縦罫線。md（カード幅 ≒ 470px）ではイラストと並べる幅が無いので、
+          lg 以上でだけ出す
+        */}
+        <div className="hidden w-[76px] shrink-0 items-start self-start lg:flex">
           <IconBadge icon={Bookmark} size="sm" className="bg-[var(--lp-surface)]" />
         </div>
         {/* 左から 107px の位置の縦罫線（マークと本文の区切り） */}
-        <div aria-hidden="true" className="lp-navy-line w-px self-stretch" />
-        <div className="min-w-0 flex-1 sm:pr-40">
+        <div aria-hidden="true" className="lp-navy-line hidden w-px self-stretch lg:block" />
+
+        <div className="flex min-w-0 flex-1 flex-col items-start self-start">
           <h2 className="text-lg leading-snug font-bold sm:text-xl">{hero.cardTitle}</h2>
           <p className="lp-navy-muted mt-1 text-sm">{hero.cardBody}</p>
           <Link
@@ -32,13 +42,26 @@ export function HeroCtaCard() {
           >
             {hero.secondaryCta}
           </Link>
+          {/* 本文の流れに置く。絶対配置にするとイラストの下に隠れる */}
+          <Link href="/signin" className={`${pillWhite} mt-5`}>
+            {hero.primaryCta}
+          </Link>
+        </div>
+
+        {/*
+          3D イラスト。幅はカード幅に合わせて段階的に。sm 以上ではカードの下端から
+          少しはみ出させて奥行きを出す（overflow-hidden で切れる）
+        */}
+        <div className="w-[120px] shrink-0 self-end sm:-mb-8 sm:w-[170px] lg:-mr-2 lg:w-[250px]">
+          <Image
+            src={heroShare}
+            alt={hero.imageAlt}
+            priority
+            sizes="(min-width: 1024px) 250px, (min-width: 640px) 170px, 120px"
+            className="h-auto w-full drop-shadow-[0_18px_30px_rgba(0,0,0,0.35)]"
+          />
         </div>
       </div>
-
-      {/* 白いピルは右から 10px・下から 14px */}
-      <Link href="/signin" className={`${pillWhite} absolute right-[10px] bottom-[14px]`}>
-        {hero.primaryCta}
-      </Link>
     </LpCard>
   );
 }

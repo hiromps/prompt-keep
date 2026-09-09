@@ -20,6 +20,8 @@ export const hero = {
   cardBody: "「Xでポスト」を押すと、共有リンク付きの投稿画面が開きます。停止すればリンクは無効に。",
   primaryCta: "Googleで始める",
   secondaryCta: "プロンプト一覧へ",
+  // public/images/hero-share.png（Codex の image_gen で生成した 3D イラスト）
+  imageAlt: "プロンプトのカードがスマートフォンのSNSフィードへ飛び出していく3Dイラスト",
 } as const;
 
 export type Feature = {

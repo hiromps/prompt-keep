@@ -44,7 +44,7 @@
 | モーダル編集・サイドバー・モバイルドロワー・PWA | ✅ | 手動 + Playwright |
 | ビュー切替・タグ絞り込みのサーバー往復ゼロ化（prompts/layout.tsx がデータを保持、[ADR 0008](decisions/0008-prompts-layout-owns-data.md)） | ✅ 2026-09-04 | `tests/e2e/prompts-navigation.spec.ts`（ログイン済み: スピナーが出ない・page セグメントだけ取得・タグ切替は通信ゼロ） |
 | 共有リンク + QR（`/s/<token>`）+ 「Xでポスト」（`x.com/intent/post` を新規タブで開くだけ。2026-09-09 追加、`pnpm check` のみでブラウザ未確認） | ✅ 2026-09-04 | `pnpm test:e2e`（未知/不正トークンの 404）+ Playwright での一連確認: 発行 → 別ブラウザ（Cookie 無し）で 200 → 停止で 404 → 再共有で別トークン・旧リンクは 404 のまま → ゴミ箱で 404。所有者情報が HTML に出ないこと、anon から `prompt_shares` を読めないこと（42501）も確認 |
-| LP（`/`）を design.md の配色で刷新（src/features/landing、LP 限定トークン） | ✅ 2026-09-09 | `pnpm check` + `pnpm test:e2e`（LP のテストは通過。`/s/<token>` の DB 依存テストはローカル Supabase 未起動のため未検証）+ Playwright で 320/393/768/1280px の横スクロール無し・`/signin` に `--lp-*` が漏れないことを確認 |
+| LP（`/`）を design.md の配色で刷新（src/features/landing、LP 限定トークン。ヒーローの 3D イラスト `public/images/hero-share.png` は Codex CLI の image_gen で生成） | ✅ 2026-09-09 | `pnpm check` + `pnpm test:e2e`（LP のテストは通過。`/s/<token>` の DB 依存テストはローカル Supabase 未起動のため未検証）+ Playwright で 320/393/768/1280px の横スクロール無し・`/signin` に `--lp-*` が漏れないことを確認 |
 
 ### CI の前提（2026-09-04 更新）
 `e2e` ジョブは **実際に `supabase start` を実行**し、その URL / キーで dev サーバーを起動する。
