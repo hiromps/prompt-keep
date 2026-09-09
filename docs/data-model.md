@@ -103,7 +103,8 @@ Auth.js ユーザー1人につき1行。初回サインイン時に自動作成�
 
 `public` への GRANT / REVOKE は `20260711000004_service_role_grants.sql` と
 `20260904000001_revoke_anon_grants.sql` の `ALTER DEFAULT PRIVILEGES` で自動的に効くため、
-テーブルごとに書く必要はない（service_role には付与、anon / authenticated からは剥奪。
+テーブルごとに書く必要はない（`next_auth` スキーマについては
+`20260904123043_revoke_anon_grants_next_auth.sql` で同じ剥奪を行っている）（service_role には付与、anon / authenticated からは剥奪。
 [0006](decisions/0006-service-role-grants.md)）。
 
 ## プロジェクト固有テーブル
