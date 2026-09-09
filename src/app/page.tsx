@@ -26,12 +26,14 @@ export default async function HomePage() {
     <div className="lp flex flex-1 flex-col bg-[var(--lp-page)] text-[var(--lp-ink)]">
       <div className="mx-auto w-full max-w-5xl px-[14px] py-6 sm:px-6 md:py-10">
         {/* 挨拶ブロック相当。h1 は e2e が名前で探すので 1 テキストノードのまま割らない */}
-        <section className="mb-5 md:mb-8">
-          <h1 className="text-[clamp(1.6rem,6vw,2.5rem)] leading-tight font-bold text-balance">
+        <section className="mb-8 py-6 text-center md:mb-12 md:py-12">
+          <h1 className="text-[clamp(2rem,8vw,3.5rem)] leading-tight font-bold tracking-[-0.02em] text-balance">
             {hero.title}
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--lp-muted)] sm:text-base">
-            {hero.lead}
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-[var(--lp-muted)] sm:text-lg">
+            {hero.leadLines[0]}
+            <br />
+            {hero.leadLines[1]}
           </p>
         </section>
 
