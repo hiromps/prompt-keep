@@ -57,8 +57,9 @@ export async function SiteHeader() {
           )}
         </nav>
       </div>
-      {/* 画面が狭いときは検索を2段目へ回す（サイト名と並べるには幅が足りないため） */}
-      <div className="px-3 pb-2 md:hidden">
+      {/* 画面が狭いときは検索を2段目へ回す（サイト名と並べるには幅が足りないため）。
+          HeaderSearch が null を返す画面（LP など）では空の帯が残らないよう empty:hidden で消す */}
+      <div className="px-3 pb-2 empty:hidden md:hidden">
         <HeaderSearch />
       </div>
     </header>
