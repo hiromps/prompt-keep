@@ -27,9 +27,12 @@ const VIEW_BY_SEGMENT: Record<string, PromptView> = {
  */
 export function PromptsWorkspace({
   prompts,
+  isAdmin,
   children,
 }: {
   prompts: Prompt[];
+  /** サイドバーに管理へのリンクを出すか。layout が profiles のロールから決める */
+  isAdmin: boolean;
   /** 各 page.tsx の描画結果（null）。ツリーの整合のために内側へ置く */
   children: React.ReactNode;
 }) {
@@ -58,7 +61,7 @@ export function PromptsWorkspace({
     <div className="flex w-full flex-1 items-stretch">
       {/* 他の端末での追加・編集をリロードなしで拾う */}
       <PromptsAutoRefresh />
-      <PromptSidebar view={view} tags={tags} activeTag={activeTag} />
+      <PromptSidebar view={view} tags={tags} activeTag={activeTag} isAdmin={isAdmin} />
 
       <div className="min-w-0 flex-1 px-4 py-4">
         {view === "active" ? (

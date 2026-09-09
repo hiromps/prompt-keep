@@ -7,10 +7,17 @@ import { PromptSidebar } from "@/features/prompts/components/prompt-sidebar";
  * タグ一覧は持たないので、3ビューへのリンクとログアウトだけが並ぶ。
  * 本体は残りの幅を使い、各ページが自分でコンテナ（max-width）を持つ。
  */
-export function ProtectedShell({ children }: { children: React.ReactNode }) {
+export function ProtectedShell({
+  isAdmin = false,
+  children,
+}: {
+  /** サイドバーに管理へのリンクを出すか。各ページが profiles のロールから決める */
+  isAdmin?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex w-full flex-1 items-stretch">
-      <PromptSidebar />
+      <PromptSidebar isAdmin={isAdmin} />
       <div className="min-w-0 flex-1">{children}</div>
     </div>
   );

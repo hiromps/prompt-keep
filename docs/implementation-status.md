@@ -24,7 +24,7 @@
 2. `.env.local` の `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` を設定
 3. `pnpm db:start` → `pnpm dev` → http://localhost:3000 → 「Googleで始める」
 4. 確認: /profile に表示名が出る・`public.profiles` に行がある・/prompts でプロンプトの作成/編集/コピー/タグ絞り込み/検索/ピン/アーカイブ/ゴミ箱が動く・別 Google アカウントで他人のプロンプトが見えない
-5. 管理者確認: `UPDATE public.profiles SET role='admin' WHERE ...` → 再ログイン → /admin が表示される。一般ユーザーは /unauthorized へ
+5. 管理者確認: `UPDATE public.profiles SET role='admin' WHERE ...` → サイドバーに「管理」が出て /admin が表示される（ロールは毎回 profiles を見るので再ログインは要らない）。一般ユーザーはリンクが出ず、直接開いても /unauthorized へ
 
 ## 2026-07-12 不具合修正（セキュリティ/品質レビュー反映）
 - 修正: 重複 callbackUrl での 500（searchParams の string[] 正規化 `src/lib/url.ts`）

@@ -39,11 +39,18 @@ async function PromptsData({
   session: AuthenticatedUser;
   children: React.ReactNode;
 }) {
-  // 状態確認（停止中なら /unauthorized）と全件取得は互いに依存しないので並べて待つ
-  const [, prompts] = await Promise.all([
+  // 状態確認（停止中なら /unauthorized）と全件取得は互いに依存しないので並べて待つ。
+  // 状態確認の戻り値には DB の現在のロールが入っているので、
+  // 管理へのリンクの出し分けはこれを使う（JWT のロールはサインイン時点で固定されるため、
+  // 権限を与えた直後に再ログインしないと出てこない）
+  const [account, prompts] = await Promise.all([
     resolvePageAccount(session),
     listPromptsByOwner(session.id),
   ]);
 
-  return <PromptsWorkspace prompts={prompts}>{children}</PromptsWorkspace>;
+  return (
+    <PromptsWorkspace prompts={prompts} isAdmin={account.role === "admin"}>
+      {children}
+    </PromptsWorkspace>
+  );
 }

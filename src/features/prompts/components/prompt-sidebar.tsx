@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Lightbulb, Archive, Trash2, Tag, X, LogOut, Trophy } from "lucide-react";
+import { Lightbulb, Archive, Trash2, Tag, X, LogOut, Trophy, ShieldCheck } from "lucide-react";
 import { useAppShell } from "@/components/app-shell";
 import { signOutAction } from "@/auth/actions";
 import type { PromptView, TagCount } from "@/features/prompts/model";
@@ -16,16 +16,25 @@ const NAV = [
 
 /** ビューではない行き先。/prompts の外なので active にはならない */
 const RANKING = { href: "/ranking", label: "ランキング", Icon: Trophy };
+/** 管理者だけに見せる行き先。/admin 自体も DB のロールで再確認される */
+const ADMIN = { href: "/admin", label: "管理", Icon: ShieldCheck };
+
+/** ロールは DB の現在値で渡ってくる（JWT の古いロールは使わない。guards.ts 参照） */
+function extraLinks(isAdmin: boolean) {
+  return isAdmin ? [RANKING, ADMIN] : [RANKING];
+}
 
 type Props = {
   /** 現在のビュー。プロンプト画面以外（プロフィールなど）では無し */
   view?: PromptView;
   tags?: TagCount[];
   activeTag?: string;
+  /** 管理へのリンクを出すか。サーバー側が profiles のロールを見て決める */
+  isAdmin?: boolean;
 };
 
 /** 既定値を埋めた後の props（内側の2コンポーネントは tags を必須で受ける） */
-type ResolvedProps = Props & { tags: TagCount[] };
+type ResolvedProps = Props & { tags: TagCount[]; isAdmin: boolean };
 
 /**
  * サイドバー。画面幅で見せ方が変わる。
@@ -39,8 +48,8 @@ type ResolvedProps = Props & { tags: TagCount[] };
  * プロンプト画面以外（プロフィール / 管理）でも同じサイドバーを出す（ProtectedShell）。
  * そこではタグ一覧を持たないので、3ビューとログアウトだけになる。
  */
-export function PromptSidebar({ tags = [], ...rest }: Props) {
-  const props: ResolvedProps = { tags, ...rest };
+export function PromptSidebar({ tags = [], isAdmin = false, ...rest }: Props) {
+  const props: ResolvedProps = { tags, isAdmin, ...rest };
   return (
     <>
       <DesktopRail {...props} />
@@ -157,7 +166,7 @@ function SignOutRow({ expanded, tabIndex }: { expanded: boolean; tabIndex?: numb
   );
 }
 
-function DesktopRail({ view, tags, activeTag }: ResolvedProps) {
+function DesktopRail({ view, tags, activeTag, isAdmin }: ResolvedProps) {
   const { railExpanded } = useAppShell();
 
   const width = railExpanded
@@ -211,16 +220,18 @@ function DesktopRail({ view, tags, activeTag }: ResolvedProps) {
         })}
       </ul>
       <ul className="mt-2 border-t border-[var(--border)] pt-2">
-        <li>
-          <Link
-            href={RANKING.href}
-            title={railExpanded ? undefined : RANKING.label}
-            className={navRowClass(false, railExpanded)}
-          >
-            <RANKING.Icon className="size-5 shrink-0" aria-hidden="true" />
-            <span className={railExpanded ? "" : "sr-only"}>{RANKING.label}</span>
-          </Link>
-        </li>
+        {extraLinks(isAdmin).map(({ href, label, Icon }) => (
+          <li key={href}>
+            <Link
+              href={href}
+              title={railExpanded ? undefined : label}
+              className={navRowClass(false, railExpanded)}
+            >
+              <Icon className="size-5 shrink-0" aria-hidden="true" />
+              <span className={railExpanded ? "" : "sr-only"}>{label}</span>
+            </Link>
+          </li>
+        ))}
       </ul>
       <div className="mt-auto border-t border-[var(--border)] pt-2">
         <SignOutRow expanded={railExpanded} />
@@ -229,7 +240,7 @@ function DesktopRail({ view, tags, activeTag }: ResolvedProps) {
   );
 }
 
-function MobileDrawer({ view, tags, activeTag }: ResolvedProps) {
+function MobileDrawer({ view, tags, activeTag, isAdmin }: ResolvedProps) {
   const { drawerOpen, setDrawerOpen } = useAppShell();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -312,17 +323,19 @@ function MobileDrawer({ view, tags, activeTag }: ResolvedProps) {
           ))}
         </ul>
         <ul className="mt-2 border-t border-[var(--border)] pt-2">
-          <li>
-            <Link
-              href={RANKING.href}
-              onClick={close}
-              tabIndex={drawerOpen ? undefined : -1}
-              className={navRowClass(false, true)}
-            >
-              <RANKING.Icon className="size-5 shrink-0" aria-hidden="true" />
-              <span>{RANKING.label}</span>
-            </Link>
-          </li>
+          {extraLinks(isAdmin).map(({ href, label, Icon }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                onClick={close}
+                tabIndex={drawerOpen ? undefined : -1}
+                className={navRowClass(false, true)}
+              >
+                <Icon className="size-5 shrink-0" aria-hidden="true" />
+                <span>{label}</span>
+              </Link>
+            </li>
+          ))}
         </ul>
         <div className="mt-auto border-t border-[var(--border)] pt-2">
           <SignOutRow expanded tabIndex={drawerOpen ? undefined : -1} />

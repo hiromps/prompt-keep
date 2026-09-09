@@ -20,7 +20,7 @@ export default async function ProfilePage() {
   if (!profile) {
     // 通常は初回サインイン時に作成される。欠損時は再ログインを促す
     return (
-      <ProtectedShell>
+      <ProtectedShell isAdmin={user.role === "admin"}>
         <p className="mx-auto w-full max-w-3xl px-4 py-6 text-sm text-[var(--muted)]">
           プロフィールが見つかりません。一度ログアウトして再ログインしてください。
         </p>
@@ -29,7 +29,7 @@ export default async function ProfilePage() {
   }
 
   return (
-    <ProtectedShell>
+    <ProtectedShell isAdmin={user.role === "admin"}>
       <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-8">
         <div className="flex items-center gap-4">
           <UserAvatar image={user.image} name={user.name} email={user.email} size={56} />
