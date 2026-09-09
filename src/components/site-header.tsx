@@ -1,4 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
+import appIcon from "../../public/icons/icon-192.png";
 import { projectConfig } from "@config";
 import { getSessionUser } from "@/auth/guards";
 import { SidebarToggle } from "@/components/sidebar-toggle";
@@ -14,7 +16,12 @@ export async function SiteHeader() {
         {/* ハンバーガーと検索はプロンプト一覧でのみ出る（内部で pathname を見て自分で消える） */}
         <SidebarToggle />
         {/* ログイン中のトップはプロンプト一覧。LP に戻す意味は無い */}
-        <Link href={user ? "/prompts" : "/"} className="shrink-0 px-1 font-semibold whitespace-nowrap">
+        <Link
+          href={user ? "/prompts" : "/"}
+          className="flex shrink-0 items-center gap-2 px-1 font-semibold whitespace-nowrap"
+        >
+          {/* PWA と同じアイコン。リンク名は文字が担うので画像は装飾扱い */}
+          <Image src={appIcon} alt="" aria-hidden="true" width={24} height={24} className="rounded-md" />
           prompt-keep
         </Link>
         <div className="hidden min-w-0 flex-1 md:flex md:max-w-2xl">
