@@ -105,6 +105,24 @@ export const preview = {
     },
   ],
   toast: "コピーしました",
+  /** 触れるデモであることを伝える一言 */
+  hint: "このカードは触れます。編集・コピー・削除を試せます（この画面の中だけの変更です）",
+  resetLabel: "はじめに戻す",
+  undoLabel: "元に戻す",
+  archivedToast: "アーカイブしました",
+  trashedToast: "ゴミ箱に移動しました",
+  editTitle: "プロンプトを編集",
+  editSave: "保存",
+  editCancel: "キャンセル",
+  titlePlaceholder: "タイトル",
+  bodyPlaceholder: "プロンプト本文",
+  shareTitle: "プロンプトを共有",
+  shareBody:
+    "共有リンクと QR コードを発行して、X にそのままポストできます。受け取った人はログインなしでコピーでき、いつでも停止できます。",
+  shareNote: "デモでは発行できません。無料で登録すると自分のプロンプトで使えます。",
+  // ヒーローの主 CTA と同じ名前にしない（Playwright の strict モードで衝突する）
+  shareCta: "Googleで始めて共有する",
+  shareClose: "閉じる",
 } as const;
 
 export const howTo = {
