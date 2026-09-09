@@ -5,16 +5,19 @@ import { Copy, PenLine, Search, Share2 } from "lucide-react";
  * LP の文言。e2e（tests/e2e/public-pages.spec.ts）が見出しと主 CTA の文字列を
  * そのまま参照しているので、変えるときは spec も一緒に直す。
  *
+ * 訴求は「貯める」より「X でシェアして広がる」に寄せている。
+ * 受け取る側がログイン不要でコピーできる（= 広がる理由）を必ず添える。
+ *
  * /signin へのリンクは複数あるが、ラベルは全部別にしてある。同じ名前のリンクが
  * 2つ以上あると Playwright の getByRole が strict モードで失敗する。
  */
 export const hero = {
-  title: "プロンプトを、Xでシェアしよう",
+  title: "いいプロンプトは、シェアで広がる",
   // 2 行で言い切る。詳しい説明は下のカードに任せる
-  leadLines: ["よく使うAIプロンプトを貯めて、", "リンク1つでXに投稿。"],
+  leadLines: ["貯めたプロンプトを、ワンタップで X にポスト。", "開いた人は、ログインなしでそのままコピー。"],
   cardEyebrow: "無料 / Google アカウントだけ",
-  cardTitle: "共有リンクを発行して、Xに貼るだけ",
-  cardBody: "公開するのは選んだ1件だけ。停止すれば元のリンクは開けなくなります。",
+  cardTitle: "ポスト1回で、タイムラインに届く",
+  cardBody: "「Xでポスト」を押すと、共有リンク付きの投稿画面が開きます。停止すればリンクは無効に。",
   primaryCta: "Googleで始める",
   secondaryCta: "プロンプト一覧へ",
 } as const;
@@ -26,6 +29,11 @@ export type Feature = {
 };
 
 export const features: Feature[] = [
+  {
+    title: "ポストする",
+    body: "共有ダイアログの「Xでポスト」で、リンクとハッシュタグ入りの投稿画面へ。",
+    icon: Share2,
+  },
   {
     title: "貯める",
     body: "タイトルなしでも保存できるクイック入力。タグはあとから付け足せます。",
@@ -41,16 +49,11 @@ export const features: Feature[] = [
     body: "カードのコピーボタンで本文をそのままクリップボードへ。",
     icon: Copy,
   },
-  {
-    title: "共有する",
-    body: "リンクと QR で1件だけ公開。停止すれば元のリンクは開けなくなります。",
-    icon: Share2,
-  },
 ];
 
 export const install = {
   title: "ホーム画面に追加",
-  body: "PWA 対応。スマホのホーム画面に置けば、アプリのように一覧がすぐ開きます。",
+  body: "PWA 対応。スマホのホーム画面に置けば、思いついた瞬間に貯めて、その場でポストできます。",
   primaryCta: "ログインして追加する",
   disabledCta: "オフライン編集は未対応",
 } as const;
@@ -82,17 +85,17 @@ export const preview = {
 } as const;
 
 export const howTo = {
-  title: "使い方は3ステップ",
+  title: "ポストまで3ステップ",
   cta: "今すぐ始める",
   steps: [
     { title: "Google でログイン", body: "登録フォームはありません。" },
     { title: "プロンプトを貼り付ける", body: "タイトルもタグも省略できます。" },
-    { title: "次からはコピーするだけ", body: "検索かタグで開いて、1クリック。" },
+    { title: "「Xでポスト」を押す", body: "共有リンク付きの投稿画面が開きます。" },
   ],
 } as const;
 
 export const footer = {
-  title: "はじめる準備はできています",
-  lines: ["最初の1件を保存すれば、", "次からは探さずに済みます。"],
+  title: "最初の1件を、今日ポストしよう",
+  lines: ["受け取った人はログイン不要でコピーできる。", "だから、広がる。"],
   cta: "無料で始める",
 } as const;
