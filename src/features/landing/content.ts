@@ -9,12 +9,12 @@ import { Copy, PenLine, Search, Share2 } from "lucide-react";
  * 2つ以上あると Playwright の getByRole が strict モードで失敗する。
  */
 export const hero = {
-  title: "プロンプトを、探さない",
+  title: "プロンプトを、Xでシェアしよう",
   // 2 行で言い切る。詳しい説明は下のカードに任せる
-  leadLines: ["よく使うAIプロンプトを、1か所に。", "貯めて、探して、ワンクリックでコピー。"],
+  leadLines: ["よく使うAIプロンプトを貯めて、", "リンク1つでXに投稿。"],
   cardEyebrow: "無料 / Google アカウントだけ",
-  cardTitle: "貯めたプロンプトを、いつでも手元に",
-  cardBody: "ログインすれば、どの端末からも同じ一覧が開きます。",
+  cardTitle: "共有リンクを発行して、Xに貼るだけ",
+  cardBody: "公開するのは選んだ1件だけ。停止すれば元のリンクは開けなくなります。",
   primaryCta: "Googleで始める",
   secondaryCta: "プロンプト一覧へ",
 } as const;
