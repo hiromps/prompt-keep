@@ -25,6 +25,7 @@ Browser ──(HTML/Server Action)──> Next.js サーバー ──(service ro
 | `src/app` | ルーティングと画面構成のみ。ロジックは持たない |
 | `src/auth` | Auth.js 設定・ロール・ガード・プロフィール同期 |
 | `src/features/<name>` | プロジェクト固有機能（queries / actions / components） |
+| `src/features/landing` | LP（`/`）専用の UI と配色。`landing.css` の `--lp-*` トークンは `.lp` 配下だけで効き、globals.css の共有トークンは上書きしない |
 | `src/lib/supabase` | Supabase クライアント（server / browser / admin）と DB 型 |
 | `src/actions` | Server Action 共通ラッパー（safe-action） |
 | `src/schemas` | Zod スキーマ（入力検証の単一情報源） |
