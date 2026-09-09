@@ -104,7 +104,8 @@ Supabase Realtime を直接購読していないのは、認証が Auth.js で S
 `ServiceWorker`（`src/components/service-worker.tsx`）が本番でのみ登録する。
 開発中に登録しないのは、dev サーバーの更新を SW が挟むと直したはずの画面が古いまま出るため。
 
-**SW はページや API の応答を一切キャッシュしない。** ログイン後の内容を保存すると、
+**SW はページや API の応答を原則キャッシュしない。** 例外は `/ranking`（公開データ。ネットワーク優先で失敗時に最後の表示）と
+`/_next/static/*`（ハッシュ付きの成果物）だけ（[ADR 0009](decisions/0009-shared-copy-ranking.md)）。 ログイン後の内容を保存すると、
 別アカウントや古い状態がそのまま出る危険があるため。保持するのは
 オフライン時に出す静的ページ `public/offline.html` 1枚だけで、
 画面遷移が失敗したときにそれを返す。

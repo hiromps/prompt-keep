@@ -9,6 +9,15 @@ test.describe("公開ページ", () => {
     await expect(page.getByRole("heading", { level: 2, name: "ホーム画面に追加" })).toBeVisible();
   });
 
+  // /ranking はログインなしで開ける（docs/decisions/0009）。未ログインは 10 位までで、続きはログインを促す
+  test("ランキングはログインなしで開け、ログイン導線がある", async ({ page }) => {
+    await page.goto("/ranking");
+    await expect(
+      page.getByRole("heading", { name: "シェアされたプロンプトのランキング" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Googleでログインして続きを見る" })).toBeVisible();
+  });
+
   test("サインインページに Google ログインボタンがある", async ({ page }) => {
     await page.goto("/signin");
     await expect(page.getByRole("button", { name: "Googleでログイン" })).toBeVisible();

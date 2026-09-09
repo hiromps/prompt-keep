@@ -46,18 +46,22 @@ export function CopyButton({
   label = "コピー",
   copiedLabel = "コピー済",
   title = "本文をコピー",
+  onCopied,
 }: {
   text: string;
   className?: string;
   label?: React.ReactNode;
   copiedLabel?: React.ReactNode;
   title?: string;
+  /** クリップボードへの書き込みが成功したときだけ呼ばれる */
+  onCopied?: () => void;
 }) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   const handleClick = async () => {
     const ok = await writeToClipboard(text);
     setStatus(ok ? "copied" : "failed");
+    if (ok) onCopied?.();
     window.setTimeout(() => setStatus("idle"), 1800);
   };
 

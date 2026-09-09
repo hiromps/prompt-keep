@@ -19,9 +19,26 @@
 | 2. サーバー処理 | `requireUser()` / `requireAdmin()` / `createAuthAction` | **正式な認可**。ID・ロール・所有権・アカウント状態を検証 |
 | 3. DB | RLS 有効 + ポリシーなし | 防御層。anon からの直接アクセス全拒否 |
 
-## 唯一の未認証データ経路: `/s/<token>`
-共有リンク（[ADR 0007](decisions/0007-prompt-sharing.md)）だけは**ログインなしで
-DB の中身を返す**。上の3層のうち1・2が意図的に無い経路なので、不変条件を明記する。
+## 未認証のデータ経路は 3 本だけ
+
+| 経路 | 向き | 入口 | 決定 |
+|---|---|---|---|
+| `/s/<token>` | 読み | `src/features/prompts/shares.ts` | [0007](decisions/0007-prompt-sharing.md) |
+| `/ranking` | 読み | `src/features/ranking/queries.ts` → ビュー `shared_prompt_ranking` | [0009](decisions/0009-shared-copy-ranking.md) |
+| 共有ページでのコピー数 +1 | 書き | `src/features/ranking/actions.ts`（`createPublicAction`）→ 関数 `increment_shared_copy` | [0009](decisions/0009-shared-copy-ranking.md) |
+
+いずれも上の3層のうち1・2が意図的に無い。増やすときは ADR を書く。
+
+- `/ranking` が読める列はビューで DB 側に固定（`token, copy_count, last_copied_at, title, snippet, tags`）。
+  `id` / `owner_id` は無い。載るのは有効な共有 × ゴミ箱でない × コピー 1 回以上
+- 加算は関数の中で条件判定し、結果を返さない（停止済みトークンの存在確認に使わせない）。
+  `service_role` だけが EXECUTE できる。同一ブラウザの連打は `localStorage` で抑えるだけで、
+  サーバー側のレート制限は無い（水増しは MVP として許容）
+- `createPublicAction` は認証しないラッパー。この 1 件以外で使わない
+
+### `/s/<token>`
+共有リンク（[ADR 0007](decisions/0007-prompt-sharing.md)）は**ログインなしで
+DB の中身を返す**。不変条件:
 
 - 入口は `src/features/prompts/shares.ts` の `getSharedPrompt(token)` **1つだけ**。
   `/s/[token]` 以外から呼ばない

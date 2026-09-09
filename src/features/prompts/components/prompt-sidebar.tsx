@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Lightbulb, Archive, Trash2, Tag, X, LogOut } from "lucide-react";
+import { Lightbulb, Archive, Trash2, Tag, X, LogOut, Trophy } from "lucide-react";
 import { useAppShell } from "@/components/app-shell";
 import { signOutAction } from "@/auth/actions";
 import type { PromptView, TagCount } from "@/features/prompts/model";
@@ -13,6 +13,9 @@ const NAV = [
   { view: "archived" as const, href: "/prompts/archive", label: "アーカイブ", Icon: Archive },
   { view: "trashed" as const, href: "/prompts/trash", label: "ゴミ箱", Icon: Trash2 },
 ];
+
+/** ビューではない行き先。/prompts の外なので active にはならない */
+const RANKING = { href: "/ranking", label: "ランキング", Icon: Trophy };
 
 type Props = {
   /** 現在のビュー。プロンプト画面以外（プロフィールなど）では無し */
@@ -207,6 +210,18 @@ function DesktopRail({ view, tags, activeTag }: ResolvedProps) {
           );
         })}
       </ul>
+      <ul className="mt-2 border-t border-[var(--border)] pt-2">
+        <li>
+          <Link
+            href={RANKING.href}
+            title={railExpanded ? undefined : RANKING.label}
+            className={navRowClass(false, railExpanded)}
+          >
+            <RANKING.Icon className="size-5 shrink-0" aria-hidden="true" />
+            <span className={railExpanded ? "" : "sr-only"}>{RANKING.label}</span>
+          </Link>
+        </li>
+      </ul>
       <div className="mt-auto border-t border-[var(--border)] pt-2">
         <SignOutRow expanded={railExpanded} />
       </div>
@@ -295,6 +310,19 @@ function MobileDrawer({ view, tags, activeTag }: ResolvedProps) {
               ) : null}
             </li>
           ))}
+        </ul>
+        <ul className="mt-2 border-t border-[var(--border)] pt-2">
+          <li>
+            <Link
+              href={RANKING.href}
+              onClick={close}
+              tabIndex={drawerOpen ? undefined : -1}
+              className={navRowClass(false, true)}
+            >
+              <RANKING.Icon className="size-5 shrink-0" aria-hidden="true" />
+              <span>{RANKING.label}</span>
+            </Link>
+          </li>
         </ul>
         <div className="mt-auto border-t border-[var(--border)] pt-2">
           <SignOutRow expanded tabIndex={drawerOpen ? undefined : -1} />

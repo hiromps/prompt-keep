@@ -76,3 +76,46 @@ export function createAuthAction<S extends z.ZodType, T>(
     }
   };
 }
+
+/**
+ * 認証しない Server Action ラッパー。**使ってよいのは公開経路だけ**
+ * （現状は共有ページのコピー回数の加算のみ。docs/decisions/0009-shared-copy-ranking.md）。
+ *
+ * createAuthAction から requireUser を抜いただけで、Zod 検証と共通エラー形式は同じ。
+ * handler には user が渡らないので、所有権を前提にした処理は書けない（書かせない）。
+ * ここを通す処理は「誰が呼んでも安全」でなければならない。
+ */
+export function createPublicAction<S extends z.ZodType, T>(
+  actionName: string,
+  schema: S,
+  handler: (input: z.output<S>) => Promise<T>,
+) {
+  return async function action(
+    _prevState: ActionResult<T> | null,
+    formData: FormData,
+  ): Promise<ActionResult<T>> {
+    try {
+      const parsed = schema.safeParse(formDataToObject(formData));
+      if (!parsed.success) {
+        const { fieldErrors } = z.flattenError(parsed.error);
+        return actionError(
+          "VALIDATION",
+          "入力内容を確認してください",
+          fieldErrors as Record<string, string[]>,
+        );
+      }
+
+      const data = await handler(parsed.data);
+      return { ok: true, data };
+    } catch (error) {
+      if (error instanceof AppError) {
+        return actionError(error.code, error.message);
+      }
+      logger.error("server action failed", {
+        action: actionName,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return actionError("INTERNAL", "処理に失敗しました。時間をおいて再試行してください");
+    }
+  };
+}

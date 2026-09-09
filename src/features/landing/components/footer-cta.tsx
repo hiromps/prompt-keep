@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FolderOpen } from "lucide-react";
 import { footer } from "@/features/landing/content";
-import { pillNavy } from "@/features/landing/classes";
+import { focusRing, pillNavy } from "@/features/landing/classes";
 import { IconBadge } from "@/features/landing/components/icon-badge";
 import { LpCard } from "@/features/landing/components/lp-card";
 
@@ -22,6 +22,12 @@ export function FooterCta() {
         </p>
         <Link href="/signin" className={pillNavy}>
           {footer.cta}
+        </Link>
+        <Link
+          href="/ranking"
+          className={`text-sm text-[var(--lp-muted)] underline underline-offset-4 hover:text-[var(--lp-ink)] ${focusRing}`}
+        >
+          {footer.rankingLink}
         </Link>
       </div>
     </LpCard>

@@ -43,6 +43,7 @@
 | プロンプト CRUD / タグ / 検索 / コピー / ピン / アーカイブ / ゴミ箱 | ✅ | `pnpm check` + 手動 |
 | モーダル編集・サイドバー・モバイルドロワー・PWA | ✅ | 手動 + Playwright |
 | ビュー切替・タグ絞り込みのサーバー往復ゼロ化（prompts/layout.tsx がデータを保持、[ADR 0008](decisions/0008-prompts-layout-owns-data.md)） | ✅ 2026-09-04 | `tests/e2e/prompts-navigation.spec.ts`（ログイン済み: スピナーが出ない・page セグメントだけ取得・タグ切替は通信ゼロ） |
+| 共有プロンプトのコピー数 + 公開ランキング `/ranking`（未ログイン 10 件・ログイン 100 件、SW でオフライン表示） | ⏳ 2026-09-09 実装済み・本番 migration 適用待ち | `pnpm check`。ローカル Supabase が無くコピー→加算→ランキングの通しとオフラインは未検証。本番適用後に DevTools オフラインで確認する |
 | 共有リンク + QR（`/s/<token>`）+ 「Xでポスト」（`x.com/intent/post` を新規タブで開くだけ。2026-09-09 追加、`pnpm check` のみでブラウザ未確認） | ✅ 2026-09-04 | `pnpm test:e2e`（未知/不正トークンの 404）+ Playwright での一連確認: 発行 → 別ブラウザ（Cookie 無し）で 200 → 停止で 404 → 再共有で別トークン・旧リンクは 404 のまま → ゴミ箱で 404。所有者情報が HTML に出ないこと、anon から `prompt_shares` を読めないこと（42501）も確認 |
 | LP（`/`）を design.md の配色で刷新（src/features/landing、LP 限定トークン。ヒーローの 3D イラスト `public/images/hero-share.png` は Codex CLI の image_gen で生成） | ✅ 2026-09-09 | `pnpm check` + `pnpm test:e2e`（LP のテストは通過。`/s/<token>` の DB 依存テストはローカル Supabase 未起動のため未検証）+ Playwright で 320/393/768/1280px の横スクロール無し・`/signin` に `--lp-*` が漏れないことを確認 |
 

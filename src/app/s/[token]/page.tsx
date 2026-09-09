@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSharedPrompt } from "@/features/prompts/shares";
-import { CopyButton } from "@/features/prompts/components/copy-button";
+import { ShareCopyButton } from "@/features/prompts/components/share-copy-button";
 
 /**
  * 共有されたプロンプトの公開ページ。**このアプリで唯一ログイン不要のデータ表示**。
@@ -72,7 +72,9 @@ export default async function SharedPromptPage({
         ) : null}
 
         <div className="mt-5 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-4">
-          <CopyButton
+          {/* コピーされたら回数を数える（ランキング用。docs/decisions/0009） */}
+          <ShareCopyButton
+            token={token}
             text={prompt.body}
             className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--card)]"
           />

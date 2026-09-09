@@ -81,6 +81,20 @@ Auth.js ユーザー1人につき1行。初回サインイン時に自動作成�
 - 配信条件: `revoked_at IS NULL AND prompts.deleted_at IS NULL`。
   アーカイブ済みは配信を続ける（アーカイブは持ち主の整理都合であって共有の停止ではない）
 
+### prompt_share_stats（共有プロンプトのコピー数）
+共有ページで受け取った人がコピーした回数の累計。設計の理由は
+[0009-shared-copy-ranking.md](decisions/0009-shared-copy-ranking.md)。
+
+| カラム | 型 | 備考 |
+|---|---|---|
+| prompt_id | uuid PK | FK → public.prompts(id) ON DELETE CASCADE。プロンプト単位（再共有しても引き継ぐ） |
+| copy_count | integer | 0 以上 |
+| last_copied_at | timestamptz | 同数のときの並び順に使う |
+
+- `prompts` の列にしないのは `set_updated_at` トリガーが +1 のたびに `updated_at` を進めるため
+- 加算は関数 `increment_shared_copy(token)`（有効な共有 × ゴミ箱でない場合だけ効く）
+- 公開ランキングはビュー `shared_prompt_ranking` を読む（`token, copy_count, last_copied_at, title, snippet(本文冒頭 120 文字), tags`）
+
 ## 新テーブル設計パターン
 1. 所有データは `owner_id uuid REFERENCES next_auth.users(id) ON DELETE CASCADE`
 2. `ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`（ポリシーは書かない = 防御層）
@@ -93,4 +107,4 @@ Auth.js ユーザー1人につき1行。初回サインイン時に自動作成�
 [0006](decisions/0006-service-role-grants.md)）。
 
 ## プロジェクト固有テーブル
-`prompts` と `prompt_shares`。
+`prompts`・`prompt_shares`・`prompt_share_stats`（+ ビュー `shared_prompt_ranking`）。

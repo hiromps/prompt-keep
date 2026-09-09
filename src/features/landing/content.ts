@@ -120,4 +120,5 @@ export const footer = {
   title: "最初の1件を、今日ポストしよう",
   lines: ["受け取った人はログイン不要でコピーできる。", "だから、広がる。"],
   cta: "無料で始める",
+  rankingLink: "いま広がっているプロンプトを見る",
 } as const;

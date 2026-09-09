@@ -45,6 +45,32 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_share_stats: {
+        Row: {
+          copy_count: number
+          last_copied_at: string
+          prompt_id: string
+        }
+        Insert: {
+          copy_count?: number
+          last_copied_at?: string
+          prompt_id: string
+        }
+        Update: {
+          copy_count?: number
+          last_copied_at?: string
+          prompt_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_share_stats_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: true
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prompt_shares: {
         Row: {
           created_at: string
@@ -118,10 +144,20 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      shared_prompt_ranking: {
+        Row: {
+          copy_count: number | null
+          last_copied_at: string | null
+          snippet: string | null
+          tags: string[] | null
+          title: string | null
+          token: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      increment_shared_copy: { Args: { p_token: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

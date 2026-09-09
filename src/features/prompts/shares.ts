@@ -4,7 +4,7 @@ import { AppError } from "@/lib/errors";
 import { isShareToken } from "@/schemas/prompt";
 
 /**
- * ★このファイルはアプリで唯一「ログインなしで DB の中身を返す」経路★
+ * ★「ログインなしで DB の中身を返す」経路の 1 本（他は /ranking と共有コピーの加算。docs/decisions/0009）★
  *
  * /s/<token> の公開ページだけがここを呼ぶ。読み手は認証されていないので、
  * 返す列は下の SHARED_COLUMNS に固定し、意図的に閉じている。
