@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { ArrowLeft } from "lucide-react";
 import { updatePrompt } from "@/features/prompts/actions";
 import { TagsInput } from "@/features/prompts/components/tags-input";
 import { FieldError } from "@/components/form-feedback";
@@ -198,6 +199,19 @@ export function PromptEditorDialog({
         ref={panelRef}
         className="flex flex-col p-4 max-md:h-full max-md:pb-[max(1rem,env(safe-area-inset-bottom))] max-md:pt-[max(1rem,env(safe-area-inset-top))] md:h-[var(--panel-height)] md:max-h-[85vh]"
       >
+        {/*
+          全画面で開く狭い画面には、背景をタップして閉じる余白が無い。
+          戻るボタンを左上に出す（閉じるだけ。保存は下のボタンが担う）。
+          広い画面では背景クリックと Esc があるので出さない。
+        */}
+        <button
+          type="button"
+          onClick={requestClose}
+          aria-label="閉じる"
+          className="-ml-2 mb-1 inline-flex size-11 shrink-0 items-center justify-center self-start rounded-full text-[var(--muted)] hover:bg-[var(--chip)] hover:text-[var(--foreground)] md:hidden"
+        >
+          <ArrowLeft className="size-5" aria-hidden="true" />
+        </button>
         <input
           ref={titleRef}
           value={title}
