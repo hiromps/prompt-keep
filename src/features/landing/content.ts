@@ -96,6 +96,12 @@ export const preview = {
       tags: ["english"],
       pinned: false,
     },
+    {
+      title: "会議メモの整理",
+      body: "この議事録から決定事項・宿題（担当と期限）・未決の論点を分けて箇条書きにしてください。",
+      tags: ["work", "meeting"],
+      pinned: false,
+    },
   ],
   toast: "コピーしました",
 } as const;

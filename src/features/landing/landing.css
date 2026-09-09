@@ -87,17 +87,6 @@
   color: color-mix(in srgb, var(--lp-surface) 72%, transparent);
 }
 
-/* チャートの目盛り相当。90px 間隔の薄い横罫線を敷く */
-.lp-ruled {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 89px,
-    var(--lp-line) 89px,
-    var(--lp-line) 90px
-  );
-}
-
 /* ポスター下部の文字の後ろに敷く暗転。上端は透明にしてイラストへ溶かす */
 .lp-poster-scrim {
   background: linear-gradient(
