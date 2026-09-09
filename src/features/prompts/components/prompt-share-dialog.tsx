@@ -77,6 +77,17 @@ export function PromptShareDialog({
     }
   };
 
+  // X の投稿画面を開く。本文とリンクだけ入れて、あとは本人が書き足す。
+  // window.open ではなく普通のリンクにしておくと、ポップアップブロックに引っかからず
+  // キーボードや長押しでも扱える
+  const xPostUrl = link
+    ? `https://x.com/intent/post?${new URLSearchParams({
+        text: prompt.title ? `「${prompt.title}」のプロンプト` : "AIプロンプトを共有します",
+        url: link.url,
+        hashtags: "promptkeep",
+      }).toString()}`
+    : null;
+
   return (
     <dialog
       ref={dialogRef}
@@ -115,12 +126,26 @@ export function PromptShareDialog({
             />
 
             <div className="mt-3 flex flex-wrap gap-2">
+              {xPostUrl ? (
+                <a
+                  href={xPostUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-[var(--foreground)] px-3 py-2 text-sm font-medium whitespace-nowrap text-[var(--card)]"
+                >
+                  {/* X のロゴ。lucide にブランドアイコンは無いので直書き */}
+                  <svg aria-hidden="true" viewBox="0 0 24 24" width={14} height={14} fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                  Xでポスト
+                </a>
+              ) : null}
               <CopyButton
                 text={link.url}
                 label="リンクをコピー"
                 copiedLabel="コピーしました"
                 title="共有リンクをコピー"
-                className="flex-1 rounded-md bg-[var(--foreground)] px-3 py-2 text-sm font-medium text-[var(--card)]"
+                className="rounded-md border border-[var(--border)] px-3 py-2 text-sm font-medium"
               />
               {canNativeShare ? (
                 <button
@@ -151,7 +176,7 @@ export function PromptShareDialog({
               共有リンクを作ると、リンクを知っている人なら誰でもこのプロンプトを閲覧・コピーできるようになります（ログイン不要）。
             </p>
             <p className="mt-2 text-xs text-[var(--muted)]">
-              QR コードも一緒に発行されます。共有はいつでも停止できます。
+              QR コードも一緒に発行され、そのまま X にポストできます。共有はいつでも停止できます。
             </p>
             <button
               type="button"
