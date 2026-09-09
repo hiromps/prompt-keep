@@ -12,14 +12,28 @@ import { Copy, PenLine, Search, Share2 } from "lucide-react";
  * 2つ以上あると Playwright の getByRole が strict モードで失敗する。
  */
 export const hero = {
-  title: "いいプロンプトは、シェアで広がる",
+  /**
+   * 見出しは 2 行で固定し、2 行目の「シェア」だけ色を変える。
+   * h1 の中で行を分けるので、e2e は名前の完全一致ではなく level:1 + toContainText で見る。
+   */
+  titleLines: ["いいプロンプトは、", "シェアで広がる"],
+  titleAccent: "シェア",
+  eyebrow: "無料 / Google アカウントだけ",
   // 2 行で言い切る。詳しい説明は下のカードに任せる
   leadLines: ["貯めたプロンプトを、ワンタップで X にポスト。", "開いた人は、ログインなしでそのままコピー。"],
-  cardEyebrow: "無料 / Google アカウントだけ",
-  cardTitle: "ポスト1回で、タイムラインに届く",
-  cardBody: "「Xでポスト」を押すと、共有リンク付きの投稿画面が開きます。停止すればリンクは無効に。",
   primaryCta: "Googleで始める",
   secondaryCta: "プロンプト一覧へ",
+  // ファーストビュー下部の小さな安心材料
+  trust: ["ログイン不要で開ける", "QR 付き", "いつでも停止"],
+  // ポスター内の X 投稿モック（飾り。span のみ）
+  mockPost: {
+    name: "あなた",
+    handle: "@you",
+    text: "いつも使ってるレビュー用プロンプト、置いときます",
+    link: "prompt-keep.app/s/…",
+    tag: "#promptkeep",
+  },
+  mockToast: "コピーしました",
   // public/images/hero-share.png（Codex の image_gen で生成した 3D イラスト）
   imageAlt: "プロンプトのカードがスマートフォンのSNSフィードへ飛び出していく3Dイラスト",
 } as const;

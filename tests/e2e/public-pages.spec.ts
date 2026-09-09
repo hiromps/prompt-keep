@@ -3,7 +3,8 @@ import { test, expect } from "@playwright/test";
 test.describe("公開ページ", () => {
   test("LPが表示され、ログイン導線がある", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "いいプロンプトは、シェアで広がる" })).toBeVisible();
+    // 見出しは 2 行に分けて描いているので、名前の完全一致ではなく文言の包含で見る
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("シェアで広がる");
     await expect(page.getByRole("link", { name: "Googleで始める" })).toBeVisible();
     await expect(page.getByRole("heading", { level: 2, name: "ホーム画面に追加" })).toBeVisible();
   });

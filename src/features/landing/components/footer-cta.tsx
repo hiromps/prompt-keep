@@ -11,7 +11,7 @@ import { LpCard } from "@/features/landing/components/lp-card";
  */
 export function FooterCta() {
   return (
-    <LpCard tone="white" className="flex min-h-[280px] flex-col md:col-span-3">
+    <LpCard tone="white" className="flex min-h-[280px] flex-col md:col-span-2">
       <h2 className="text-lg font-bold">{footer.title}</h2>
       <div className="flex flex-1 flex-col items-center justify-center gap-5 py-6 text-center">
         <IconBadge icon={FolderOpen} size="lg" />

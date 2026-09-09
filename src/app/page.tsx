@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/auth/guards";
 import "@/features/landing/landing.css";
-import { hero } from "@/features/landing/content";
-import { HeroCtaCard } from "@/features/landing/components/hero-cta-card";
+import { HeroPoster } from "@/features/landing/components/hero-poster";
 import { FeatureGrid } from "@/features/landing/components/feature-grid";
 import { InstallPitchCard } from "@/features/landing/components/install-pitch-card";
 import { PromptListPreview } from "@/features/landing/components/prompt-list-preview";
@@ -25,23 +24,15 @@ export default async function HomePage() {
   return (
     <div className="lp flex flex-1 flex-col bg-[var(--lp-page)] text-[var(--lp-ink)]">
       <div className="mx-auto w-full max-w-5xl px-[14px] py-6 sm:px-6 md:py-10">
-        {/* 挨拶ブロック相当。h1 は e2e が名前で探すので 1 テキストノードのまま割らない */}
-        <section className="mb-8 py-6 text-center md:mb-12 md:py-12">
-          <h1 className="text-[clamp(2rem,8vw,3.5rem)] leading-tight font-bold tracking-[-0.02em] text-balance">
-            {hero.title}
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-[var(--lp-muted)] sm:text-lg">
-            {hero.leadLines[0]}
-            <br />
-            {hero.leadLines[1]}
-          </p>
-        </section>
+        {/* ファーストビュー（9:16 ポスター）。h1 はこの中に 1 つ */}
+        <div className="mb-8 md:mb-14 md:py-6">
+          <HeroPoster />
+        </div>
 
         <div className="grid gap-[9px] md:grid-cols-3 md:gap-5">
-          <HeroCtaCard />
-          <InstallPitchCard />
           <FeatureGrid />
           <PromptListPreview />
+          <InstallPitchCard />
           <HowToSteps />
           <FooterCta />
         </div>

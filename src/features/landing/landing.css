@@ -20,6 +20,39 @@
   --lp-green: #64c857;
   --lp-radius-xl: 22px;
   --lp-radius-lg: 18px;
+  /* 見出しの強調語。淡青地・白地では大きな文字にだけ使う（小さい文字には薄い） */
+  --lp-accent-text: #647bff;
+}
+
+/*
+ * ファーストビューの 9:16 ポスター。
+ * ネイビーの地に、右下のペリウィンクルの発光、上部の薄い光、
+ * 奥行き用の細かいドット格子を重ねる。中の文字色は .lp-poster 側で白にする。
+ */
+.lp-poster {
+  --lp-accent-text: #c9d2ff;
+  background:
+    radial-gradient(
+      70% 45% at 85% 100%,
+      color-mix(in srgb, var(--lp-periwinkle) 70%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 30% at 20% 0%,
+      color-mix(in srgb, var(--lp-surface) 14%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      circle at 1px 1px,
+      color-mix(in srgb, var(--lp-surface) 9%, transparent) 1px,
+      transparent 1.5px
+    ),
+    linear-gradient(170deg, #12293f 0%, var(--lp-ink) 55%, #08182a 100%);
+  background-size:
+    auto,
+    auto,
+    22px 22px,
+    auto;
 }
 
 /* 残高カード相当。深いネイビーに右下からペリウィンクルの発光 */
@@ -62,5 +95,15 @@
     transparent 89px,
     var(--lp-line) 89px,
     var(--lp-line) 90px
+  );
+}
+
+/* ポスター下部の文字の後ろに敷く暗転。上端は透明にしてイラストへ溶かす */
+.lp-poster-scrim {
+  background: linear-gradient(
+    to top,
+    var(--lp-ink) 62%,
+    color-mix(in srgb, var(--lp-ink) 60%, transparent) 85%,
+    transparent 100%
   );
 }
