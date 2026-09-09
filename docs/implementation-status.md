@@ -43,6 +43,7 @@
 | プロンプト CRUD / タグ / 検索 / コピー / ピン / アーカイブ / ゴミ箱 | ✅ | `pnpm check` + 手動 |
 | モーダル編集・サイドバー・モバイルドロワー・PWA | ✅ | 手動 + Playwright |
 | 共有リンク + QR（`/s/<token>`） | ✅ 2026-09-04 | `pnpm test:e2e`（未知/不正トークンの 404）+ Playwright での一連確認: 発行 → 別ブラウザ（Cookie 無し）で 200 → 停止で 404 → 再共有で別トークン・旧リンクは 404 のまま → ゴミ箱で 404。所有者情報が HTML に出ないこと、anon から `prompt_shares` を読めないこと（42501）も確認 |
+| LP（`/`）を design.md の配色で刷新（src/features/landing、LP 限定トークン） | ✅ 2026-09-09 | `pnpm check` + `pnpm test:e2e` + Playwright で 320/393/768/1280px の横スクロール無し・`/signin` に `--lp-*` が漏れないことを確認 |
 
 ### 認証が要る画面を Playwright で確かめるとき
 セッション Cookie（`authjs.session-token`）を自前で作る場合、`@auth/core/jwt` の

@@ -1,0 +1,66 @@
+/*
+ * LP（/）専用のデザイントークン。public/design.md（fride ダッシュボード仕様）の配色と角丸を
+ * `.lp` 配下だけに適用する。globals.css の --background 等は共有 UI 用なので、ここでは触らない。
+ *
+ * - 名前は必ず --lp-* にする（design.md の --muted をそのまま使うと、ラッパー内で
+ *   グローバルの --muted を上書きしてしまう）
+ * - @theme には登録しない。Tailwind v4 の @theme はグローバルで、LP 専用色の
+ *   ユーティリティがアプリ全体に漏れる
+ * - 複数ストップのグラデーションは Tailwind の任意値ではなくここでクラスにする
+ */
+.lp {
+  --lp-ink: #0b2031;
+  --lp-muted: #55616b;
+  --lp-page: #eff7fb;
+  --lp-surface: #ffffff;
+  --lp-periwinkle: #647bff;
+  --lp-soft-blue: #e7edff;
+  --lp-card-blue: #e6edff;
+  --lp-line: #edf0f2;
+  --lp-green: #64c857;
+  --lp-radius-xl: 22px;
+  --lp-radius-lg: 18px;
+}
+
+/* 残高カード相当。深いネイビーに右下からペリウィンクルの発光 */
+.lp-card-navy {
+  color: var(--lp-surface);
+  background:
+    radial-gradient(
+      120% 90% at 100% 100%,
+      color-mix(in srgb, var(--lp-periwinkle) 55%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(160deg, #10263a 0%, var(--lp-ink) 100%);
+}
+
+/* 統計カード・保険カード相当。淡青の斜め＋放射グラデーション */
+.lp-card-pale {
+  background:
+    radial-gradient(90% 80% at 100% 100%, var(--lp-soft-blue), transparent 70%),
+    linear-gradient(135deg, var(--lp-surface), var(--lp-card-blue));
+}
+
+/* ネイビーカード右上の淡い「ホールド」領域 */
+.lp-navy-hold {
+  background: color-mix(in srgb, var(--lp-surface) 12%, transparent);
+}
+
+/* ネイビーカード内の縦罫線・薄い文字 */
+.lp-navy-line {
+  background: color-mix(in srgb, var(--lp-surface) 18%, transparent);
+}
+.lp-navy-muted {
+  color: color-mix(in srgb, var(--lp-surface) 72%, transparent);
+}
+
+/* チャートの目盛り相当。90px 間隔の薄い横罫線を敷く */
+.lp-ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 89px,
+    var(--lp-line) 89px,
+    var(--lp-line) 90px
+  );
+}

@@ -5,6 +5,7 @@ test.describe("公開ページ", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "プロンプトを、探さない" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Googleで始める" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "ホーム画面に追加" })).toBeVisible();
   });
 
   test("サインインページに Google ログインボタンがある", async ({ page }) => {

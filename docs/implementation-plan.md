@@ -11,7 +11,7 @@
 ### Phase 0: スターター適用（済ませてから機能開発に入る）
 - [ ] `project.config.ts` の meta を書き換え
 - [ ] docs/product-brief.md, mvp-scope.md を記入
-- [ ] LP（`src/app/page.tsx`）の文言をプロダクトに合わせる
+- [x] LP（`src/app/page.tsx`）の文言をプロダクトに合わせる
 - [x] notes サンプルを prompts へ置き換え（admin は検証サンプルとして残置）
 - [ ] Google OAuth クレデンシャル設定・ログイン動作確認
 
