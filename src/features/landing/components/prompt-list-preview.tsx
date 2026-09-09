@@ -23,6 +23,7 @@ export function PromptListPreview() {
       </div>
 
       <div
+        role="group"
         aria-label={preview.caption}
         className="lp-ruled relative mt-4 grid gap-3 py-2 sm:grid-cols-2"
       >

@@ -11,7 +11,7 @@ import { LpCard } from "@/features/landing/components/lp-card";
  */
 export function HeroCtaCard() {
   return (
-    <LpCard tone="navy" className="flex min-h-[190px] flex-col rounded-[30px] md:col-span-2">
+    <LpCard tone="navy" className="flex min-h-[190px] flex-col md:col-span-2">
       {/* 右上の淡い領域。61% × 70px、左下だけ 40px の丸み */}
       <div className="lp-navy-hold absolute top-0 right-0 flex h-[70px] w-[61%] items-center justify-end rounded-bl-[40px] px-4">
         <p className="lp-navy-muted text-right text-xs leading-snug">{hero.cardEyebrow}</p>
