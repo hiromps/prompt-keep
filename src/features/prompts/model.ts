@@ -1,4 +1,4 @@
-import { foldForMatch } from "@/schemas/prompt";
+import { foldForMatch, normalizeNewlines, normalizeTags } from "@/schemas/prompt";
 
 /** DB の prompts 1行。Server / Client のどちらからも参照する。 */
 export type Prompt = {
@@ -68,4 +68,57 @@ export function matchesQuery(prompt: Prompt, query: string): boolean {
     [prompt.title, prompt.body, prompt.tags.join(" ")].join("\n"),
   );
   return haystack.includes(needle);
+}
+
+/**
+ * 入力中のプロンプト（クイック入力・編集モーダル）。
+ * タグ欄で打ちかけている文字（Enter で確定する前）も持つ。
+ */
+export type PromptDraft = {
+  title: string;
+  body: string;
+  tags: string[];
+  /** タグ欄に打ちかけの文字。保存するときは確定済みのタグとして扱う */
+  pendingTag: string;
+};
+
+export const EMPTY_DRAFT: PromptDraft = { title: "", body: "", tags: [], pendingTag: "" };
+
+/**
+ * 保存するタグ。打ちかけのタグも加える。
+ * Esc や外側のクリックで閉じると、タグ欄の blur（ここで確定している）を通らないため。
+ */
+export function draftTags(draft: PromptDraft): string[] {
+  if (!draft.pendingTag.trim()) return draft.tags;
+  return normalizeTags([...draft.tags, draft.pendingTag].join(","));
+}
+
+/** 保存するものが無いか（createPromptSchema と同じく、タイトルか本文のどちらかが要る） */
+export function isBlankDraft(draft: PromptDraft): boolean {
+  return draft.title.trim() === "" && draft.body.trim() === "";
+}
+
+/**
+ * 保存済みの内容から変わったか。サーバー側の正規化（タイトル前後の空白・改行コード）を
+ * 揃えてから比べるので、保存しても結果が同じになる差分は「変更なし」になる。
+ */
+export function isDraftChanged(
+  draft: PromptDraft,
+  saved: Pick<Prompt, "title" | "body" | "tags">,
+): boolean {
+  return (
+    draft.title.trim() !== saved.title.trim() ||
+    normalizeNewlines(draft.body) !== normalizeNewlines(saved.body) ||
+    draftTags(draft).join("\n") !== saved.tags.join("\n")
+  );
+}
+
+/** createPrompt / updatePrompt に渡す FormData（タグはカンマ区切りの 1 本で送る） */
+export function draftFormData(draft: PromptDraft, id?: string): FormData {
+  const formData = new FormData();
+  if (id) formData.set("id", id);
+  formData.set("title", draft.title);
+  formData.set("body", draft.body);
+  formData.set("tags", draftTags(draft).join(","));
+  return formData;
 }

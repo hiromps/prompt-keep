@@ -30,6 +30,11 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* 影（shadow-card-hover / shadow-raised）。カードはふだん枠線だけで、
+     ホバーしたときだけ浮かせる（Keep と同じ）。濃い影は使わない */
+  --shadow-card-hover: 0 1px 2px 0 rgb(60 64 67 / 0.3), 0 1px 3px 1px rgb(60 64 67 / 0.15);
+  /* 入力中のクイック入力など、一段浮いているもの */
+  --shadow-raised: 0 1px 2px 0 rgb(60 64 67 / 0.3), 0 2px 6px 2px rgb(60 64 67 / 0.15);
 }
 
 body {
@@ -61,6 +66,33 @@ body {
 }
 
 /*
+ * カード本文の切り詰め（prompt-card.tsx）。12 行を超えたぶんは切り、最後の行を薄くして
+ * 続きがあることを示す。
+ *
+ * line-clamp（… で切る）を使わないのは、line-clamp の箱は float を避けてしまい、
+ * 右上の印（ピン留め・共有中）を本文の 1 行目に回り込ませられないため。
+ * overflow: clip は（hidden と違って）BFC を作らないので float が回り込める。
+ * 薄くする位置は行数で決め打ちしているので、11 行以下の本文は薄くならない。
+ * 文字の大きさと行の高さはここで rem で持つ。mask-image のグラデーションの中では
+ * em / lh がこの要素ではなく親の文字の大きさで解決され（Chrome で実測）、
+ * 高さと薄くする位置がずれるため。
+ */
+.card-body-clamp {
+  /* text-sm（0.875rem）× leading-relaxed（1.625） */
+  --clamp-line: calc(0.875rem * 1.625);
+  --clamp-lines: 12;
+  font-size: 0.875rem;
+  line-height: var(--clamp-line);
+  max-height: calc(var(--clamp-line) * var(--clamp-lines));
+  overflow: clip;
+  mask-image: linear-gradient(
+    to bottom,
+    #000 calc(var(--clamp-line) * (var(--clamp-lines) - 1)),
+    rgb(0 0 0 / 0.15) calc(var(--clamp-line) * var(--clamp-lines))
+  );
+}
+
+/*
  * 編集モーダルの背景。<dialog>.showModal() の ::backdrop を暗転させる。
  * 開くときはフェードイン、閉じるときは（JS が付ける is-closing で）逆再生する。
  * カード本体のアニメーションは Web Animations API 側で行っている
@@ -84,15 +116,13 @@ dialog.is-closing::backdrop {
 }
 
 /*
- * 狭い画面ではモーダルをその場でフェードさせる（prompt-editor-dialog.tsx）。
- * 背景の明るさが先に戻ると、まだ濃いモーダルだけが宙に浮いて見えるので、
- * こちらも同じ長さ・同じ立ち上がりで薄くする。260ms は JS 側の
- * NARROW_CLOSE_DURATION と対。
+ * モーダルをその場でフェードさせて閉じるとき（狭い画面と、保存して閉じるとき。
+ * prompt-editor-dialog.tsx が is-fading を付ける）。背景の明るさが先に戻ると、
+ * まだ濃いモーダルだけが宙に浮いて見えるので、こちらも同じ長さ・同じ立ち上がりで薄くする。
+ * 260ms は JS 側の FADE_CLOSE_DURATION と対。
  */
-@media (max-width: 767px) {
-  dialog.is-closing::backdrop {
-    animation: dialog-backdrop-in 260ms ease-in reverse both;
-  }
+dialog.is-closing.is-fading::backdrop {
+  animation: dialog-backdrop-in 260ms ease-in reverse both;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AppError, actionError } from "@/lib/errors";
+import { AppError, actionError, callAction } from "@/lib/errors";
 
 describe("AppError", () => {
   it("code と message を保持する", () => {
@@ -21,5 +21,27 @@ describe("actionError", () => {
         fieldErrors: { title: ["必須です"] },
       },
     });
+  });
+});
+
+describe("callAction", () => {
+  it("Server Action の結果をそのまま返す", async () => {
+    await expect(callAction(async () => ({ ok: true as const, data: { id: "1" } }))).resolves.toEqual({
+      ok: true,
+      data: { id: "1" },
+    });
+    const failure = actionError("NOT_FOUND", "プロンプトが見つかりません");
+    await expect(callAction(async () => failure)).resolves.toEqual(failure);
+  });
+
+  it("呼び出し自体が失敗（通信断など）したら例外を投げずに共通形式のエラーにする", async () => {
+    const result = await callAction(async () => {
+      throw new TypeError("Failed to fetch");
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe("INTERNAL");
+      expect(result.error.message).toContain("サーバーに接続できませんでした");
+    }
   });
 });
