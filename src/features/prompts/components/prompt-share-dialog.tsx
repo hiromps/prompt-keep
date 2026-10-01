@@ -3,10 +3,12 @@
 /* eslint-disable @next/next/no-img-element -- QR は data URL。next/image は最適化できず、実寸も固定 */
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { sharePrompt, unsharePrompt, type ShareLink } from "@/features/prompts/actions";
 import { CopyButton } from "@/features/prompts/components/copy-button";
+import { useBackdropClick } from "@/components/outside-click";
 import type { Prompt } from "@/features/prompts/model";
-import type { ActionError } from "@/lib/errors";
+import { callAction, type ActionError } from "@/lib/errors";
 
 /**
  * 共有リンクと QR コードのダイアログ。
@@ -15,6 +17,9 @@ import type { ActionError } from "@/lib/errors";
  * 共有中ならダイアログを開いた時点でリンクを取り直し（発行はしない）、
  * 未共有なら本人が明示的にボタンを押すまで何も公開しない——
  * ダイアログを開いただけで公開状態になるのは事故のもとなので、そこは分けている。
+ *
+ * 編集モーダルと同じく body 直下へポータルで出す（カードの DOM が並べ替えで動いても
+ * モーダルのまま保つため。prompt-editor-dialog.tsx 参照）。
  */
 export function PromptShareDialog({
   prompt,
@@ -38,7 +43,7 @@ export function PromptShareDialog({
     startTransition(async () => {
       const formData = new FormData();
       formData.set("id", prompt.id);
-      const result = await sharePrompt(null, formData);
+      const result = await callAction(() => sharePrompt(null, formData));
       if (result.ok) {
         setLink(result.data);
         setError(null);
@@ -62,7 +67,7 @@ export function PromptShareDialog({
     startTransition(async () => {
       const formData = new FormData();
       formData.set("id", prompt.id);
-      const result = await unsharePrompt(null, formData);
+      const result = await callAction(() => unsharePrompt(null, formData));
       if (result.ok) dialogRef.current?.close();
       else setError(result.error);
     });
@@ -88,14 +93,14 @@ export function PromptShareDialog({
       }).toString()}`
     : null;
 
-  return (
+  // 背景のクリックで閉じる。共有リンクの文字を選択しながら外へ出て離したときは閉じない
+  const backdrop = useBackdropClick(() => dialogRef.current?.close());
+
+  return createPortal(
     <dialog
       ref={dialogRef}
       onClose={onClose}
-      onClick={(e) => {
-        // 背景（dialog 自身）のクリックだけを閉じる操作として拾う
-        if (e.target === dialogRef.current) dialogRef.current?.close();
-      }}
+      {...backdrop}
       aria-label="プロンプトを共有"
       className="m-auto w-[min(92vw,26rem)] rounded-xl border border-[var(--border)] bg-[var(--card)] p-0 text-[var(--foreground)] shadow-2xl backdrop:bg-black/50"
     >
@@ -205,6 +210,7 @@ export function PromptShareDialog({
           </button>
         </div>
       </div>
-    </dialog>
+    </dialog>,
+    document.body,
   );
 }

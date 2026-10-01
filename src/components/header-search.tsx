@@ -41,7 +41,7 @@ export function HeaderSearch() {
         }}
         placeholder="検索"
         aria-label="プロンプトを検索"
-        className="w-full rounded-lg bg-[var(--chip)] py-2 pr-9 pl-9 text-sm outline-none placeholder:text-[var(--muted)] focus:bg-[var(--card)] focus:ring-1 focus:ring-[var(--border)]"
+        className="w-full rounded-lg bg-[var(--chip)] py-2 pr-9 pl-9 text-sm outline-none transition-[background-color,box-shadow] placeholder:text-[var(--muted)] focus:bg-[var(--card)] focus:shadow-raised"
       />
       {query ? (
         <button

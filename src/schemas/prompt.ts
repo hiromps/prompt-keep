@@ -47,7 +47,7 @@ export function normalizeTags(raw: string): string[] {
  * Windows のブラウザは textarea を CRLF で送るため、
  * そのまま保存するとコピーしてターミナルや他ツールへ貼ったときに CR が混ざる。
  */
-function normalizeNewlines(value: string): string {
+export function normalizeNewlines(value: string): string {
   return value.replace(/\r\n/g, "\n");
 }
 

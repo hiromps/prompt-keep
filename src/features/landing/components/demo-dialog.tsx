@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { useBackdropClick } from "@/components/outside-click";
 
 /**
  * LP デモ用のモーダル。本物の編集・共有ダイアログと同じく
@@ -22,14 +23,15 @@ export function DemoDialog({
     ref.current?.showModal();
   }, []);
 
+  // 背景のクリックで閉じる。本文を選択しながら外へ出て離したときは閉じない
+  // （判定の理由は src/components/outside-click.ts）
+  const backdrop = useBackdropClick(() => ref.current?.close());
+
   return (
     <dialog
       ref={ref}
       onClose={onClose}
-      onClick={(e) => {
-        // 背景（dialog 自身）のクリックだけを閉じる操作として拾う
-        if (e.target === ref.current) ref.current?.close();
-      }}
+      {...backdrop}
       aria-label={label}
       className="m-auto w-[min(92vw,34rem)] rounded-xl border border-[var(--lp-line)] bg-[var(--lp-surface)] p-0 text-[var(--lp-ink)] shadow-2xl backdrop:bg-black/50"
     >

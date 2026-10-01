@@ -65,7 +65,7 @@ export function PromptsWorkspace({
 
       <div className="min-w-0 flex-1 px-4 py-4">
         {view === "active" ? (
-          <div className="mx-auto mb-6 max-w-xl">
+          <div className="mx-auto mb-8 max-w-xl">
             <PromptComposer />
           </div>
         ) : null}
