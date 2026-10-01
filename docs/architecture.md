@@ -11,6 +11,9 @@
 - 認証: Auth.js（NextAuth v5, JWT session, Google OAuth）+ Supabase Adapter
 - DB: Supabase PostgreSQL（Supabase Auth は不使用 → ADR 0001）
 - 検証: Zod / Vitest / Playwright、CI: GitHub Actions、デプロイ: Vercel
+- サーバー処理（Vercel Functions）のリージョンは東京 `hnd1`（`vercel.json`）。利用者が日本にいるため。
+  既定の米国東部 `iad1` では、ページ表示や保存のたびに太平洋を往復して遅かった。
+  Supabase も東京リージョンに置くこと（離れていると DB への往復で逆に遅くなる）
 
 ## データフロー原則（ADR 0002）
 ```
