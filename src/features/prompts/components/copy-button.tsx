@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 /**
  * 本文をクリップボードへコピーする。
@@ -58,11 +58,23 @@ export function CopyButton({
 }) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
 
+  const resetTimer = useRef<number | undefined>(undefined);
+  const showFor = (next: "copied" | "failed") => {
+    setStatus(next);
+    window.clearTimeout(resetTimer.current);
+    resetTimer.current = window.setTimeout(() => setStatus("idle"), 1800);
+  };
+
+  /**
+   * 押した瞬間に「コピーしました」を出し、書き込みの完了は待たない。
+   * clipboard.writeText はメインスレッドが混んでいると解決が遅れ、モバイルでは
+   * 押してから表示まで 2 秒ほどかかっていた。失敗はまれなので、失敗したときだけ表示を差し替える。
+   */
   const handleClick = async () => {
+    showFor("copied");
     const ok = await writeToClipboard(text);
-    setStatus(ok ? "copied" : "failed");
     if (ok) onCopied?.();
-    window.setTimeout(() => setStatus("idle"), 1800);
+    else showFor("failed");
   };
 
   return (

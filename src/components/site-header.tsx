@@ -16,8 +16,11 @@ export async function SiteHeader() {
         {/* ハンバーガーと検索はプロンプト一覧でのみ出る（内部で pathname を見て自分で消える） */}
         <SidebarToggle />
         {/* ログイン中のトップはプロンプト一覧。LP に戻す意味は無い */}
+        {/* ヘッダーのリンクは先読みしない。どれも動的なページで、先読みのたびにサーバーで描画され、
+            保存のたびに取り直される（モバイルで重くなる）。押したときに取りに行けば足りる */}
         <Link
           href={user ? "/prompts" : "/"}
+          prefetch={false}
           className="flex shrink-0 items-center gap-2 px-1 font-semibold whitespace-nowrap"
         >
           {/* PWA と同じアイコン。リンク名は文字が担うので画像は装飾扱い */}
@@ -30,14 +33,14 @@ export async function SiteHeader() {
         <nav className="ml-auto flex shrink-0 items-center gap-3 text-sm">
           {user ? (
             <>
-              <Link href="/prompts" className="hidden hover:underline sm:inline">
+              <Link href="/prompts" prefetch={false} className="hidden hover:underline sm:inline">
                 プロンプト
               </Link>
-              <Link href="/profile" className="hidden hover:underline sm:inline">
+              <Link href="/profile" prefetch={false} className="hidden hover:underline sm:inline">
                 プロフィール
               </Link>
               {user.role === "admin" && projectConfig.modules.admin ? (
-                <Link href="/admin" className="hidden hover:underline sm:inline">
+                <Link href="/admin" prefetch={false} className="hidden hover:underline sm:inline">
                   管理
                 </Link>
               ) : null}
@@ -45,6 +48,7 @@ export async function SiteHeader() {
                   右上は「誰でログインしているか」を示すアバターで、押すとプロフィールへ */}
               <Link
                 href="/profile"
+                prefetch={false}
                 aria-label={`${user.name || user.email || "アカウント"}（プロフィール）`}
                 title={user.name || user.email || undefined}
                 className="shrink-0 rounded-full ring-[var(--border)] ring-offset-2 hover:ring-2"
