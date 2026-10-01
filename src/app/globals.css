@@ -119,10 +119,10 @@ dialog.is-closing::backdrop {
  * モーダルをその場でフェードさせて閉じるとき（狭い画面と、保存して閉じるとき。
  * prompt-editor-dialog.tsx が is-fading を付ける）。背景の明るさが先に戻ると、
  * まだ濃いモーダルだけが宙に浮いて見えるので、こちらも同じ長さ・同じ立ち上がりで薄くする。
- * 260ms は JS 側の FADE_CLOSE_DURATION と対。
+ * 160ms は JS 側の FADE_CLOSE_DURATION と対。
  */
 dialog.is-closing.is-fading::backdrop {
-  animation: dialog-backdrop-in 260ms ease-in reverse both;
+  animation: dialog-backdrop-in 160ms ease-in reverse both;
 }
 
 @media (prefers-reduced-motion: reduce) {
