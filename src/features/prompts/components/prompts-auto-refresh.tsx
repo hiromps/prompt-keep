@@ -3,13 +3,17 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-/** タブが見えている間の再取得間隔。 */
-const POLL_MS = 20_000;
 /**
- * focus は visibilitychange と同時に飛ぶことがあるので、その重複だけを潰す下限。
- * タブ復帰そのものは force で必ず走らせるため、この値が遅延になることはない。
+ * タブが見えている間の再取得間隔。再取得は全件をサーバーで描画し直すので安くない。
+ * 以前は 20 秒だったが、モバイルでは開いているだけで通信とメインスレッドを使い続け、
+ * 操作が重くなっていた。他の端末の変更はタブ復帰時の再取得でほぼ拾えるので 60 秒にする。
  */
-const MIN_GAP_MS = 2_000;
+const POLL_MS = 60_000;
+/**
+ * 直前の再取得からこれより短ければ見送る。focus と visibilitychange は同時に飛ぶことがあり、
+ * モバイルではアプリを行き来するたびに復帰が起きるので、タブ復帰（force）もこの間隔は守る。
+ */
+const MIN_GAP_MS = 10_000;
 
 /**
  * 別の端末で追加・編集したプロンプトを、リロードなしで反映する。
@@ -36,8 +40,8 @@ export function PromptsAutoRefresh() {
     const refresh = (force = false) => {
       if (document.visibilityState !== "visible") return;
       const now = Date.now();
-      // 直前に走ったばかりなら見送る。ただしタブ復帰時（force）は必ず走らせる
-      if (!force && now - lastRefresh.current < MIN_GAP_MS) return;
+      // 直前に走ったばかりなら見送る（タブ復帰でも同じ。数秒前に取ったばかりなら新しいものは無い）
+      if (now - lastRefresh.current < (force ? MIN_GAP_MS : POLL_MS / 2)) return;
       lastRefresh.current = now;
       router.refresh();
     };
@@ -63,7 +67,8 @@ export function PromptsAutoRefresh() {
 
     if (document.visibilityState === "visible") start();
     document.addEventListener("visibilitychange", onVisibility);
-    const onFocus = () => refresh();
+    // ウィンドウの切り替え（PC で別アプリから戻る）はタブ復帰と同じ扱い
+    const onFocus = () => refresh(true);
     window.addEventListener("focus", onFocus);
 
     return () => {

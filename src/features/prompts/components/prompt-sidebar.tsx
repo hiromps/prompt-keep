@@ -94,6 +94,11 @@ function TagItems({
   const pathname = usePathname();
 
   /**
+   * タグのリンクは先読みしない（prefetch={false}）。先読みはタグ 1 つごとにサーバーで
+   * 全件を取り直して描画するうえ、保存やピン留めのたびに先読みのキャッシュが捨てられて
+   * 全部が取り直される（モバイルでは通信とメインスレッドを占有して操作が重くなっていた）。
+   * 通常ビューの中の切り替えは下の pushState で通信なしで済むので、先読みは使われない。
+   *
    * 通常ビューの中でのタグ切り替えは、URL を書き換えるだけで済む。
    * 全件は prompts/layout.tsx が持っていて、絞り込みは PromptsWorkspace が
    * useSearchParams から行うため。pushState は Next.js の router と同期して
@@ -114,6 +119,7 @@ function TagItems({
         <li>
           <Link
             href="/prompts"
+            prefetch={false}
             onNavigate={switchTag("/prompts")}
             onClick={onSelect}
             className={tagRowClass(false, nested)}
@@ -129,6 +135,7 @@ function TagItems({
           <li key={tag}>
             <Link
               href={href}
+              prefetch={false}
               onNavigate={switchTag(href)}
               onClick={onSelect}
               aria-current={tag === activeTag ? "page" : undefined}
@@ -224,6 +231,7 @@ function DesktopRail({ view, tags, activeTag, isAdmin }: ResolvedProps) {
           <li key={href}>
             <Link
               href={href}
+              prefetch={false}
               title={railExpanded ? undefined : label}
               className={navRowClass(false, railExpanded)}
             >
@@ -327,6 +335,7 @@ function MobileDrawer({ view, tags, activeTag, isAdmin }: ResolvedProps) {
             <li key={href}>
               <Link
                 href={href}
+                prefetch={false}
                 onClick={close}
                 tabIndex={drawerOpen ? undefined : -1}
                 className={navRowClass(false, true)}
