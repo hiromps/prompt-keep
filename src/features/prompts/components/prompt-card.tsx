@@ -154,8 +154,9 @@ export function PromptCard({ prompt, view }: { prompt: Prompt; view: PromptView 
       className={`group relative mb-3 break-inside-avoid rounded-lg border border-[var(--border)] bg-[var(--card)] transition-shadow duration-200 hover:shadow-card-hover focus-within:shadow-card-hover sm:mb-4 ${
         canEdit ? "cursor-pointer" : ""
       } ${
-        // 編集中は一覧のカードを消しておく。中央のモーダルへ「持ち上がった」ように見える（Keep と同じ）
-        editing ? "opacity-0" : ""
+        // 編集中は一覧のカードを消しておく。中央のモーダルへ「持ち上がった」ように見える（Keep と同じ）。
+        // 狭い画面は全画面で開いてカードが見えないので消さない（消すと閉じた直後にその場所が白く抜ける）
+        editing ? "md:opacity-0" : ""
       }`}
     >
       {/* flow-root: 右上の印（float）をこの箱の中に収める */}

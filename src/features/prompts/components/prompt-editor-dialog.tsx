@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useRef, useState, type RefObject } from "react";
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { ArrowLeft } from "lucide-react";
 import { updatePrompt } from "@/features/prompts/actions";
@@ -22,8 +22,15 @@ const MIN_BODY_HEIGHT = 160;
 /** 本文が長いときに横幅を広げる目安。これを超えたら 1 行あたりの文字数を増やす */
 const WIDE_BODY_LENGTH = 400;
 const WIDE_BODY_LINES = 12;
-/** その場で薄くして閉じるときの長さ。フェードを見せるぶん少し長く取る（globals.css と揃える） */
-const FADE_CLOSE_DURATION = 260;
+/** その場で薄くして閉じるときの長さ（globals.css と揃える）。長いと閉じるのが遅く感じる */
+const FADE_CLOSE_DURATION = 160;
+
+/**
+ * Android の戻る操作を受け取る CloseWatcher（Chrome 126+）。TypeScript の DOM 型にまだ無いので最小限を書く。
+ * 狭い画面ではモーダルにしない（下記）ので、<dialog> 任せでは戻る操作を受け取れない。
+ */
+type CloseWatcherLike = { onclose: (() => void) | null; destroy: () => void };
+type CloseWatcherCtor = new () => CloseWatcherLike;
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -117,6 +124,12 @@ export function PromptEditorDialog({
   // 開いた時点の保存済みの内容。変更の有無はこれと比べる。開いている間に他の端末の更新で
   // prompt が新しくなっても、ここで何も変えていなければ閉じるときに上書き保存しない
   const [saved] = useState(() => ({ title: prompt.title, body: prompt.body, tags: prompt.tags }));
+  // 狭い画面は全画面で開く。このときは showModal() を使わない。モーダルにすると背後の一覧が
+  // すべて操作不可（inert）になり、カードの数に比例したスタイルの再計算が開くときと閉じるときに
+  // 走る（スマホでは開くまで・閉じてから一覧が戻るまでが目に見えて遅くなっていた）。
+  // 全画面で一覧を覆うので、背後を触られることはない
+  const [fullscreen] = useState(isNarrow);
+  const closeWatcher = useRef<CloseWatcherLike | null>(null);
   const [draft, setDraft] = useState<PromptDraft>(() => ({ ...saved, pendingTag: "" }));
   // 保存・閉じる処理は必ずこちらを読む。入力のたびに同期で書き換えるので、
   // 非同期処理の続きやアンマウント時でも最後に打った文字まで入っている
@@ -142,10 +155,32 @@ export function PromptEditorDialog({
   const wide =
     saved.body.length > WIDE_BODY_LENGTH || saved.body.split("\n").length > WIDE_BODY_LINES;
 
-  useEffect(() => {
+  /** 画面幅に応じて開く。全画面のときは Android の戻る操作を CloseWatcher で受け取る */
+  const open = (dialog: HTMLDialogElement) => {
+    if (!fullscreen) {
+      dialog.showModal();
+      return;
+    }
+    dialog.show();
+    const Watcher = (window as unknown as { CloseWatcher?: CloseWatcherCtor }).CloseWatcher;
+    if (Watcher && !closeWatcher.current) {
+      const watcher = new Watcher();
+      // 戻る操作で閉じる。close イベント → handleClose が「保存してから閉じる」流れに乗せる
+      // （保存に失敗したら開き直してエラーを見せる。Esc 連打でブラウザが閉じたときと同じ扱い）
+      watcher.onclose = () => {
+        closeWatcher.current = null;
+        dialog.close();
+      };
+      closeWatcher.current = watcher;
+    }
+  };
+  useEffect(() => () => closeWatcher.current?.destroy(), []);
+
+  // 開く処理はペイントの前に行う（useEffect だと 1 フレーム遅れてから開く）
+  useLayoutEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    dialog.showModal();
+    open(dialog);
 
     // 本文の量に合わせて開いたときの高さを決める。showModal() の前は
     // display:none で scrollHeight が 0 になるので、必ずこの順で測る。
@@ -153,9 +188,10 @@ export function PromptEditorDialog({
     // タグが折り返したときに箱からはみ出すが、箱の高さを決めておけば
     // はみ出したぶんは flex が本文欄から削ってくれる。
     // 上限は CSS 側の 85vh。ここは開いた直後の一度きりで、入力には追従させない。
+    // 狭い画面は全画面で開くので測らない（測ると一覧ごとレイアウトを同期で計算し直して遅くなる）
     const bodyEl = bodyRef.current;
     const panel = panelRef.current;
-    if (bodyEl && panel) {
+    if (!fullscreen && bodyEl && panel) {
       const fit = Math.max(bodyEl.scrollHeight, MIN_BODY_HEIGHT);
       const chrome = panel.getBoundingClientRect().height - bodyEl.getBoundingClientRect().height;
       panel.style.setProperty("--panel-height", `${Math.round(chrome + fit)}px`);
@@ -180,7 +216,8 @@ export function PromptEditorDialog({
         { transform: from, opacity: 0.4 },
         { transform: "translate(0, 0) scale(1, 1)", opacity: 1 },
       ],
-      { duration: DURATION, easing: "cubic-bezier(0.2, 0, 0, 1)" },
+      // 全画面はカードとの距離が大きく、長いと開くのが遅く感じるので短めにする
+      { duration: fullscreen ? 160 : DURATION, easing: "cubic-bezier(0.2, 0, 0, 1)" },
     );
     // 開いたときに一度だけ実行する
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -249,7 +286,7 @@ export function PromptEditorDialog({
         setError(result.error);
         // 保存中にブラウザ側で閉じられていた（Esc の連打など）ら、開き直してエラーを見せる
         if (!dialog.open) {
-          dialog.showModal();
+          open(dialog);
           bodyRef.current?.focus();
         }
         return;
@@ -269,6 +306,8 @@ export function PromptEditorDialog({
   // close イベント。こちらの手順で閉じたときは親へ伝えるだけ。ブラウザが自分で閉じたとき
   // （キャンセルできない 2 回目の Esc など）は、保存してから閉じる流れに乗せる
   const handleClose = () => {
+    closeWatcher.current?.destroy();
+    closeWatcher.current = null;
     if (stage.current === "closing") onClose();
     else void finish("save");
   };
@@ -295,6 +334,12 @@ export function PromptEditorDialog({
         void finish("save");
       }}
       onKeyDown={(e) => {
+        // 全画面（モーダルでない）では Esc で cancel が来ないので、ここで受ける
+        if (fullscreen && e.key === "Escape" && !e.nativeEvent.isComposing) {
+          e.preventDefault();
+          void finish("save");
+          return;
+        }
         // Ctrl+Enter（Mac は ⌘+Enter）で保存して閉じる
         if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && !e.nativeEvent.isComposing) {
           e.preventDefault();
@@ -309,7 +354,8 @@ export function PromptEditorDialog({
       }}
       {...backdrop}
       aria-label="プロンプトを編集"
-      className={`m-auto bg-[var(--card)] p-0 text-[var(--foreground)] shadow-2xl backdrop:bg-black/50 max-md:h-[100dvh] max-md:max-h-none max-md:w-full max-md:max-w-none md:rounded-lg md:border md:border-[var(--border)] ${
+      aria-modal={fullscreen ? true : undefined}
+      className={`m-auto bg-[var(--card)] p-0 text-[var(--foreground)] shadow-2xl backdrop:bg-black/50 max-md:fixed max-md:inset-0 max-md:z-[60] max-md:h-[100dvh] max-md:max-h-none max-md:w-full max-md:max-w-none md:rounded-lg md:border md:border-[var(--border)] ${
         wide ? "md:w-[min(92vw,56rem)]" : "md:w-[min(92vw,42rem)]"
       }`}
     >
